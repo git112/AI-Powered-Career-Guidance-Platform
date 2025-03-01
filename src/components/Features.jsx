@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardTitle, CardHeader } from "../components/ui/card";
-import { FaBriefcase, FaBrain, FaRobot, FaChartBar, FaFileAlt, FaGlobe } from "react-icons/fa";
+import { FaBriefcase, FaBrain, FaRobot, FaChartBar, FaFileAlt, FaGlobe, FaDollarSign } from "react-icons/fa";
 
 const features = [
  
@@ -26,15 +26,16 @@ const features = [
     description: "Builds your resume instantly, optimized for ATS & tailored to your skills.",
   },
   {
-    icon: <FaBriefcase size={30} className="text-cyan-50"  />,
-    title: "One-Stop Internship & Job Hub",
-    description: "Find internships & jobs in one place, sorted smartly to match your skills & interests.",
-  },
-  {
     icon: <FaGlobe size={30} className="text-cyan-50"  />,
     title: "Real-Time Job Market Dashboard",
     description: "Get live insights on trending jobs, in-demand skills, and salary benchmarks.",
   },
+  {
+    icon: <FaDollarSign size={30} className="text-cyan-50"  />,
+    title: "AI-Powered Salary Negotiation Coach",
+    description: "Receive optimal salary ranges and personalized negotiation tips, simulate real-life negotiations with our AI-powered mock recruiter.",
+  },
+  
   
 ];
 

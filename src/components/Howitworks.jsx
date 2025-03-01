@@ -6,43 +6,43 @@ const steps = [
     number: "1",
     title: "Sign Up & Set Up Your Profile",
     description:
-      "Create an account, fill in your details, and let our AI get to know you. The better your profile, the smarter the recommendations!",
+      "Create an account, fill in your details, and let our AI get to know you.",
   },
   {
     number: "2",
     title: "Take the Smart Competency Test",
     description:
-      "Answer fun yet insightful questions to assess your skills. Get an instant competency score to understand where you stand!",
+      "Answer a few fun questions and get your competency score.",
   },
   {
     number: "3",
     title: "Discover Your Skill Gaps",
     description:
-      "Our Skill Gap Analyzer highlights areas to improve and helps you bridge the gap with the right learning paths!",
+      "Identify missing skills and get course recommendations.",
   },
   {
     number: "4",
     title: "Get AI-Powered Job & Training Recommendations",
     description:
-      "Based on your score & profile, our AI recommends the best jobs, internships, and training courses tailored just for you!",
+      "Find the best jobs and courses tailored to your profile.",
   },
   {
     number: "5",
     title: "Build Your Resume in Seconds",
     description:
-      "No stress, no hassle! Our Resume Wizard creates a job-ready, ATS-optimized resume, so you can apply with confidence!",
+      "Create a professional, ATS-optimized resume effortlessly.",
   },
   {
     number: "6",
-    title: "Explore the Internship & Job Hub",
+    title: "Negotiate Like a Pro with AI Coaching",
     description:
-      "No more endless searching! Browse jobs & internships in one place, smartly sorted to match your skills & interests.",
+      "Get personalized salary ranges and practice negotiation tips.",
   },
   {
     number: "7",
     title: "Stay Ahead with Real-Time Job Market Insights",
     description:
-      "Get live updates on trending jobs, in-demand skills, and salary benchmarks—so you always know what’s hot in the market!",
+      "Explore trending skills and in-demand jobs.",
   },
   {
     number: "8",
