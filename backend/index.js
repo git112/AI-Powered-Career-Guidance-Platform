@@ -4,6 +4,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import connectDB from './utils/db.js';
+import mainRoutes from './routes/index.js';
 
 dotenv.config();
 const app = express();
@@ -20,10 +21,15 @@ const corsOptions = {
     optionsSuccessStatus: 200,
 }
 
+mongoose.connect(process.env.MONGO_URI)
+.then(() => console.log("MongoDB Connected"))
+  .catch(err => console.error(err));
+app.use("/api", mainRoutes);
+
 app.use(cors(corsOptions));
 
 
-const PORT = 3000;
+const PORT =  1234;
 
 app.listen(PORT, () => {
     connectDB();
