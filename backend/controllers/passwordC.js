@@ -1,8 +1,7 @@
-
 import User from "../models/Users.js"
 import bcrypt from "bcryptjs"
 
-exports.changePassword = async (req, res) => {
+export const changePassword = async (req, res) => {
   try {
     const { userId, oldPassword, newPassword } = req.body;
 

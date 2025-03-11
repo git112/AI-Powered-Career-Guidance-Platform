@@ -101,13 +101,29 @@
 // export default AnalyticsSection;
 
 
-import React from "react";
+import React from 'react';
 
 const stats = [
-  { value: "50,000+", title: "Total Jobs & Internships", description: "Helping thousands land their dream opportunities" },
-  { value: "85%", title: "AI Matching Accuracy", description: "Smart recommendations that actually make sense" },
-  { value: "2x Faster", title: "Job Hiring Speed", description: "Cut the waiting, get hired quicker" },
-  { value: "100%", title: "Skill Verification", description: "Prove your skills with verified assessments" },
+  {
+    value: "10K+",
+    title: "Active Users",
+    description: "Professionals using our platform"
+  },
+  {
+    value: "85%",
+    title: "Success Rate",
+    description: "Users finding better opportunities"
+  },
+  {
+    value: "5K+",
+    title: "Job Matches",
+    description: "Successful job placements"
+  },
+  {
+    value: "24/7",
+    title: "AI Support",
+    description: "Always available to help"
+  }
 ];
 
 const StatsSection = () => {

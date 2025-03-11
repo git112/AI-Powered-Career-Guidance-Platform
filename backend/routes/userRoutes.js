@@ -1,12 +1,11 @@
 import express from 'express';
-import {getUsers, getUserById, createUser, updateUser, deleteUser}  from "../controllers/userC.js";
+
+import { updateProfile, getProfile } from '../controllers/userC.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get("/", getUsers);
-router.get("/:id", getUserById);
-router.post("/", createUser);
-router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+router.get('/profile', authMiddleware, getProfile);
+router.put('/profile', authMiddleware, updateProfile);
 
 export default router;

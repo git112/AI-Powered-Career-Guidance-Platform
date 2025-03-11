@@ -7,7 +7,7 @@ const Header = () => {
   return (
     <header className='fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/60'>
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
-        
+        <Link to="/">
           <img
             src={logo} 
             alt="JobNest"
@@ -15,11 +15,13 @@ const Header = () => {
             height={50}
             className='h-20 py-1 w-auto object-contain'
           />
+        </Link>
         
         <div className='flex justify-end'>
+        <Link to="/auth">
           <Button variant='outline'>Sign In</Button>
+        </Link>
         </div>
-       
       </nav>
     </header>
   );

@@ -3,10 +3,10 @@ import { createResume, getResume, getResumeById, updateResume, deleteResume } fr
 
 const router = express.Router();
 
-router.get("/", getResume);
-router.get("/:id", getResumeById);
+router.get("/:userId", getResume);
+router.get("/id/:id", getResumeById);
 router.post("/", createResume);
-router.put("/:id", updateResume);
-router.delete("/:id", deleteResume);
+router.put("/:userId", updateResume);
+router.delete("/:userId", deleteResume);
 
 export default router;

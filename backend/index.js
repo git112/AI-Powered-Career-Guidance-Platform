@@ -4,35 +4,91 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import connectDB from './utils/db.js';
-import mainRoutes from './routes/index.js';
+import router from './routes/index.js';
 
 dotenv.config();
 const app = express();
 
+if (!process.env.JWT_SECRET) {
+  console.error('JWT_SECRET is not defined in environment variables');
+  process.exit(1);
+}
 
+if (!process.env.MONGO_URI) {
+  console.error('MONGO_URI is not defined in environment variables');
+  process.exit(1);
+}
 
-//middleware
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+
 const corsOptions = {
-    origin: ["http://localhost:5173"],
+    origin: "http://localhost:5174",
     credentials: true,
-    optionsSuccessStatus: 200,
-}
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+app.use(cookieParser());
+
+// Middleware to log requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, req.body);
+  next();
+});
+
+// Test route to verify API is working
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working' });
+});
+
+// Routes
+app.use('/api', router);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error details:', err);
+  res.status(500).json({ 
+    message: 'Something went wrong!', 
+    error: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  console.log('404 for route:', req.method, req.url);
+  res.status(404).json({ message: 'Route not found' });
+});
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
   .catch(err => console.error(err));
-app.use("/api", mainRoutes);
 
-app.use(cors(corsOptions));
+const startServer = async () => {
+  try {
+    await connectDB();
+    console.log('MongoDB connection success');
 
-
-const PORT =  1234;
-
-app.listen(PORT, () => {
-    connectDB();
-    console.log(`Server is running on port ${PORT}`);
+    let port = 8000;
+    const server = app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    }).on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.log(`Port ${port} is busy, trying ${port + 1}`);
+        port++;
+        server.listen(port);
+      } else {
+        console.error('Server error:', err);
+      }
     });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 

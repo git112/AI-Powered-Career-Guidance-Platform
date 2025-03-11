@@ -52,26 +52,43 @@ const steps = [
   },
 ];
 
-const HowItWorks = () => {
+const HowItWorksSection = () => {
   return (
-    <section className="py-20 overflow-hidden bg-background" id="how-it-works">
-      <div className="container mx-auto px-6 text-center">
-        <h2 className="text-3xl font-bold text-cyan-100 mb-8">🚀 How It Works</h2>
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {steps.map((step, index) => (
-            
-            <div key={index} className=" p-6 rounded-lg relative bg-muted/20 text-cyan-50 border">
-              
-              <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-background border text-cyan-50 text-lg font-bold w-10 h-10 flex items-center justify-center rounded-full">
-                {step.number}
-              </span>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-cyan-100 mb-2 pt-3">
-                  {step.title}
-                </h3>
-                <p className="text-cyan-50 text-muted-foreground pt-3">{step.description}</p>
+    <section className="py-16 bg-black">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4 text-cyan-100">How It Works</h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-cyan-50">
+            Our simple process to help you land your dream job
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+          {steps.slice(0, 4).map((step) => (
+            <div
+              key={step.number}
+              className="border p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-cyan-400 hover:border-cyan-400 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-full bg-cyan-500 flex items-center justify-center mb-4">
+                <span className="text-white font-bold">{step.number}</span>
               </div>
+              <h3 className="text-xl font-bold mb-2 text-cyan-100">{step.title}</h3>
+              <p className="text-muted-foreground text-cyan-50">{step.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto mt-8">
+          {steps.slice(4).map((step) => (
+            <div
+              key={step.number}
+              className="border p-6 rounded-xl shadow-lg flex flex-col items-center text-center hover:shadow-cyan-400 hover:border-cyan-400 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-full bg-cyan-500 flex items-center justify-center mb-4">
+                <span className="text-white font-bold">{step.number}</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-cyan-100">{step.title}</h3>
+              <p className="text-muted-foreground text-cyan-50">{step.description}</p>
             </div>
           ))}
         </div>
@@ -80,4 +97,4 @@ const HowItWorks = () => {
   );
 };
 
-export default HowItWorks;
+export default HowItWorksSection;

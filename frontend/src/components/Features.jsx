@@ -1,53 +1,50 @@
-import React from "react";
-import { Card, CardContent, CardTitle, CardHeader } from "./ui/card";
-import { FaBriefcase, FaBrain, FaRobot, FaChartBar, FaFileAlt, FaGlobe, FaDollarSign } from "react-icons/fa";
-
-const features = [
- 
-  {
-    icon: <FaBrain size={30} className="text-cyan-50"  />,
-    title: "Smart Competency Test & Score",
-    description: "Answer a few insightful questions, and we'll calculate your competency score to match you with the perfect job or training.",
-  },
-  {
-    icon: <FaChartBar size={30} className="text-cyan-50"  />,
-    title: "Skill Gap Analyzer",
-    description: "Identifies missing skills and recommends tailored courses to boost your profile.",
-  },
-  {
-    icon: <FaRobot size={30} className="text-cyan-50"  />,
-    title: "AI-Powered Job & Course Recommendations",
-    description: "Our AI analyzes your skills & preferences to suggest the best job opportunities and learning paths.",
-  },
-  
-  {
-    icon: <FaFileAlt size={30} className="text-cyan-50"  />,
-    title: "Automated Resume Wizard",
-    description: "Builds your resume instantly, optimized for ATS & tailored to your skills.",
-  },
-  {
-    icon: <FaGlobe size={30} className="text-cyan-50"  />,
-    title: "Real-Time Job Market Dashboard",
-    description: "Get live insights on trending jobs, in-demand skills, and salary benchmarks.",
-  },
-  {
-    icon: <FaDollarSign size={30} className="text-cyan-50"  />,
-    title: "AI-Powered Salary Negotiation Coach",
-    description: "Receive optimal salary ranges and personalized negotiation tips, simulate real-life negotiations with our AI-powered mock recruiter.",
-  },
-  
-  
-];
-
+import React from 'react';
+import { Card, CardContent } from './ui/card';
+import { BriefcaseIcon, BookOpen, LineChart, FileText, Award, Trophy } from 'lucide-react';
 
 const Features = () => {
+  const features = [
+    {
+      icon: <BriefcaseIcon className="h-10 w-10 text-cyan-400" />,
+      title: "AI Job Matching",
+      description: "Get personalized job recommendations based on your skills and preferences."
+    },
+    {
+      icon: <BookOpen className="h-10 w-10 text-cyan-400" />,
+      title: "Skill Gap Analysis",
+      description: "Identify missing skills and get course recommendations to improve your profile."
+    },
+    {
+      icon: <LineChart className="h-10 w-10 text-cyan-400" />,
+      title: "Industry Insights",
+      description: "Access real-time data on industry trends, salary ranges, and in-demand skills."
+    },
+    {
+      icon: <FileText className="h-10 w-10 text-cyan-400" />,
+      title: "Resume Builder",
+      description: "Create an ATS-optimized resume with AI assistance and get feedback."
+    },
+    {
+      icon: <Award className="h-10 w-10 text-cyan-400" />,
+      title: "Competency Testing",
+      description: "Take assessments to showcase your skills and stand out to employers."
+    },
+    {
+      icon: <Trophy className="h-10 w-10 text-cyan-400" />,
+      title: "Salary Negotiation",
+      description: "Get personalized salary ranges and negotiation tips for your target roles."
+    }
+  ];
+
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/20">
-    <div className="container mx-auto px-4 md:px-6">
-      <h2 className="text-3xl font-bold tracking-tighter text-center mb-12 text-cyan-100">
-      🚀 JobNest Features
-      </h2>
-      
+    <section className="py-16 bg-black">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4 text-cyan-100">Features That Set Us Apart</h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-cyan-50">
+            Our AI-powered platform helps you navigate your career journey with confidence.
+          </p>
+        </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
         {features.map((feature, index) => (

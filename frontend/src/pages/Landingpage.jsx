@@ -5,6 +5,7 @@ import Features from '../components/Features';
 import HowItWorksSection from '../components/Howitworks';
 import StatsSection from '../components/StatsSection';
 import Footer from '../components/Footer';
+import IndustryInsightsPage from './IndustryInsightsPage';
 
 const LandingPage = () => {
 
@@ -36,6 +37,7 @@ const LandingPage = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <Hero/>
+      
 
       {/* Features Section */}
       <Features/>

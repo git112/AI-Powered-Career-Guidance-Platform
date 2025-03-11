@@ -1,48 +1,48 @@
-import User from "../models/Users.js";
+import User from '../models/Users.js';
 
-export const createUser = async (req, res) => {
+export const updateProfile = async (req, res) => {
   try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).json(user);
+    const userId = req.user.id;
+    const updateData = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: updatedUser
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Profile update error:', error);
+    res.status(500).json({ 
+      message: 'Failed to update profile',
+      error: error.message 
+    });
   }
 };
 
-export const getUsers = async (req, res) => {
+export const getProfile = async (req, res) => {
   try {
-    const users = await User.find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+    const userId = req.user.id;
+    const user = await User.findById(userId);
 
-export const getUserById = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-export const updateUser = async (req, res) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updatedUser);
+    res.json({ user });
   } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const deleteUser = async (req, res) => {
-  try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: "User deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ 
+      message: 'Failed to fetch profile',
+      error: error.message 
+    });
   }
 };

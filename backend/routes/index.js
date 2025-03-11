@@ -6,6 +6,8 @@ import industryInsightsRoutes from './industryInsightsRoutes.js';
 // const jobRoutes = require("./jobRoutes");
 // const courseRoutes = require("./courseRoutes");
 import recommendationRoutes from './recommendationRoutes.js';
+import authRoutes from './authRoutes.js';
+import { googleAuth } from '../controllers/authController.js';
 
 const router = express.Router();
 
@@ -16,6 +18,15 @@ router.use("/industry-insights", industryInsightsRoutes);
 // router.use("/courses", courseRoutes);
 
 router.use("/recommendations", recommendationRoutes);
+router.use('/auth', authRoutes);
+
+// Add a test route
+router.get('/test', (req, res) => {
+  res.json({ message: 'API routes working' });
+});
+
+// Google auth route
+router.post('/auth/google', googleAuth);
 
 export default router;
 
