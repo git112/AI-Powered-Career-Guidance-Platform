@@ -1,85 +1,97 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { FcGoogle } from 'react-icons/fc';
-import { Mail, Lock, User } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
-import api from '@/lib/axios';
+import { FcGoogle } from 'react-icons/fc';
+import { FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
+import { Card, CardHeader, CardContent, CardTitle, CardFooter } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import api from '../lib/axios';
 
 const AuthPage = () => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
+    confirmPassword: ''
   });
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleManualAuth = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+
     try {
-      const response = await axios.post('/auth/register', formData);
-      if (response.data) {
-        localStorage.setItem('token', response.data.token);
+      if (!isLogin && formData.password !== formData.confirmPassword) {
+        throw new Error('Passwords do not match');
+      }
+
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const payload = isLogin 
+        ? { email: formData.email, password: formData.password }
+        : { name: formData.name, email: formData.email, password: formData.password };
+
+      const { data } = await api.post(endpoint, payload);
+      
+      // Save token and user data
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userData', JSON.stringify(data.user));
+      
+      // Redirect based on profile completion
+      if (data.user.isProfileComplete) {
+        navigate('/dashboard/industry-insights');
+      } else {
         navigate('/onboarding');
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Auth error:', error);
+      setError('Failed to login. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    try {
+      const { data } = await api.post('/api/auth/google', {
+        access_token: tokenResponse.access_token
+      });
+      
+      // Save token and user data
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userData', JSON.stringify(data.user));
+      
+      // Redirect based on profile completion
+      if (data.user.isProfileComplete) {
+        navigate('/dashboard/industry-insights');
+      } else {
+        navigate('/onboarding');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Failed to login. Please try again.');
     }
   };
 
   const login = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        console.log('Google login success, getting user info...');
-        const userInfo = await axios.get(
-          'https://www.googleapis.com/oauth2/v3/userinfo',
-          {
-            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-          }
-        );
-        
-        console.log('User info received:', userInfo.data);
-        
-        const payload = {
-          googleToken: tokenResponse.access_token,
-          email: userInfo.data.email,
-          name: userInfo.data.name,
-          picture: userInfo.data.picture
-        };
-  
-        console.log('Sending payload to backend:', payload);
-        
-        const response = await api.post('/auth/google', payload);
-  
-        console.log('Backend response:', response.data);
-        
-        if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
-          navigate('/onboarding');
-        }
-      } catch (error) {
-        console.error('Login error details:', {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-          config: error.config
-        });
-        
-        // Show more specific error message
-        const errorMessage = error.response?.data?.message || error.message;
-        alert(`Login failed: ${errorMessage}`);
-      }
+    onSuccess: handleGoogleSuccess,
+    onError: (error) => {
+      console.error('Google Login Failed:', error);
+      setError('Google login failed. Please try again.');
     },
-    flow: 'implicit',
-    ux_mode: 'popup',
   });
-
-  const handleGoogleAuth = () => {
-    login(); // This triggers the Google OAuth flow
-  };
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -90,88 +102,131 @@ const AuthPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <Button 
-              variant="outline" 
-              className="w-full border-zinc-700 hover:bg-zinc-800"
-              onClick={handleGoogleAuth}
-            >
-              <FcGoogle className="mr-2 h-5 w-5" />
-              Continue with Google
-            </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-zinc-700" />
+          <form onSubmit={handleManualAuth} className="space-y-4">
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-cyan-100">Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaUser className="text-zinc-500" />
+                  </div>
+                  <Input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Your name"
+                    className="pl-10 bg-zinc-800 border-zinc-700 text-cyan-100"
+                    required={!isLogin}
+                  />
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-zinc-900 px-2 text-cyan-100">
-                  Or continue with
-                </span>
+            )}
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-cyan-100">Email</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaEnvelope className="text-zinc-500" />
+                </div>
+                <Input
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="your.email@example.com"
+                  className="pl-10 bg-zinc-800 border-zinc-700 text-cyan-100"
+                  required
+                />
               </div>
             </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && (
-                <div className="space-y-2">
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-5 w-5 text-cyan-500" />
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    />
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-cyan-100">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaLock className="text-zinc-500" />
+                </div>
+                <Input
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="pl-10 bg-zinc-800 border-zinc-700 text-cyan-100"
+                  required
+                />
+              </div>
+            </div>
+            
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-cyan-100">Confirm Password</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaLock className="text-zinc-500" />
                   </div>
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-5 w-5 text-cyan-500" />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-5 w-5 text-cyan-500" />
-                  <input
+                  <Input
+                    name="confirmPassword"
                     type="password"
-                    placeholder="Password"
-                    className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                    value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className="pl-10 bg-zinc-800 border-zinc-700 text-cyan-100"
+                    required={!isLogin}
                   />
                 </div>
               </div>
-
-              <Button 
-                type="submit" 
-                className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
-              >
-                {isLogin ? 'Sign In' : 'Sign Up'}
-              </Button>
-            </form>
-
-            <div className="text-center text-sm text-cyan-100">
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-              <button
-                className="text-cyan-400 hover:underline"
-                onClick={() => setIsLogin(!isLogin)}
-              >
-                {isLogin ? 'Sign Up' : 'Sign In'}
-              </button>
+            )}
+            
+            {error && (
+              <div className="text-red-400 text-sm py-2">
+                {error}
+              </div>
+            )}
+            
+            <Button 
+              type="submit"
+              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+              disabled={loading}
+            >
+              {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Create Account'}
+            </Button>
+          </form>
+          
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-700"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-zinc-900 px-2 text-zinc-400">Or continue with</span>
             </div>
           </div>
+          
+          <Button 
+            variant="outline" 
+            className="w-full border-zinc-700 hover:bg-zinc-800"
+            onClick={() => login()}
+            disabled={loading}
+          >
+            <FcGoogle className="mr-2 h-5 w-5" />
+            Continue with Google
+          </Button>
         </CardContent>
+        <CardFooter>
+          <div className="text-center w-full text-sm text-zinc-400">
+            {isLogin ? "Don't have an account? " : "Already have an account? "}
+            <button 
+              type="button"
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError(null);
+              }}
+              className="text-cyan-400 hover:underline"
+            >
+              {isLogin ? 'Sign up' : 'Sign in'}
+            </button>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   );
