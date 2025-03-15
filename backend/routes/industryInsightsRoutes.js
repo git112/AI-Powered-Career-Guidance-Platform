@@ -1,12 +1,13 @@
 import express from "express";
-import { getIndustryInsight, createIndustryInsight, updateIndustryInsight, deleteIndustryInsight } from "../controllers/industryInsightC.js";
+import { generateInsights, getInsights } from "../controllers/industryInsightC.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getIndustryInsight);
-// router.get("/:id", getIndustryInsightById);
-router.post("/", createIndustryInsight);
-router.put("/:id", updateIndustryInsight);
-router.delete("/:id", deleteIndustryInsight);
+// router.put('/api/users/profile', authMiddleware, updateProfile);
+router.post('/generate', authMiddleware, generateInsights);
+
+// Get user's insights
+router.get('/user', authMiddleware, getInsights);
 
 export default router;

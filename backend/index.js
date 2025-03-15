@@ -4,7 +4,9 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import connectDB from './utils/db.js';
-import router from './routes/index.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import industryInsightRoutes from './routes/industryInsightsRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -24,7 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-    origin: "http://localhost:5174",
+    origin: 'http://localhost:5174',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -45,7 +47,9 @@ app.get('/api/test', (req, res) => {
 });
 
 // Routes
-app.use('/api', router);
+app.use('/api/auth', authRoutes);
+app.use('/', userRoutes);
+app.use('/api/industry-insights', industryInsightRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -69,9 +73,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 const startServer = async () => {
   try {
-    await connectDB();
-    console.log('MongoDB connection success');
-
+   
     let port = 8000;
     const server = app.listen(port, () => {
       console.log(`Server running on port ${port}`);
@@ -91,4 +93,6 @@ const startServer = async () => {
 };
 
 startServer();
+
+export default app;
 
