@@ -1,66 +1,76 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
 
 const UserSchema = new mongoose.Schema({
-  email: { 
-    type: String, 
-    unique: true, 
-    required: true,
+  name: {
+    type: String,
+    required: [true, "Please provide a name"],
     trim: true,
-    lowercase: true
   },
-  password: { 
-    type: String, 
-    required: function() {
-      return !this.googleId; // Password is required only if not using Google auth
-    }
-  },
-  name: { 
+  email: {
     type: String,
-    trim: true 
+    required: [true, "Please provide an email"],
+    unique: true,
+    trim: true,
+    lowercase: true,
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      "Please provide a valid email",
+    ],
   },
-  imageUrl: { type: String },
-  industry: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: "Industry" 
-  },
-  location: { type: String },
-  bio: { 
+  password: {
     type: String,
-    maxlength: 500 
+    select: false,
   },
-  experience: { 
+  profilePicture: {
+    type: String,
+    default: "",
+  },
+  authProvider: {
+    type: String,
+    enum: ["local", "google"],
+    default: "local",
+  },
+  isProfileComplete: {
+    type: Boolean,
+    default: false,
+  },
+  
+  industry: {
+    type: String,
+    trim: true,
+  },
+  subIndustry: {
+    type: String,
+    trim: true,
+  },
+  experience: {
     type: Number,
     min: 0,
-    max: 50
+    max: 50,
   },
-  skills: { 
-    type: [String],
-    default: [] 
+  skills: [String],
+  bio: {
+    type: String,
+    trim: true,
   },
-  competencyScore: { 
-    type: Number,
-    min: 0,
-    max: 100,
-    default: 0
-  },
-  preferredRoles: { 
-    type: [String],
-    default: []
-  },
-  salaryExpectation: { 
-    type: Number,
-    min: 0
-  },
-  googleId: {
-    type: String
+  industryInsight: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "IndustryInsight",
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
-}, { timestamps: true });
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-// Remove clerkUserId as it's not being used with your current auth system
+// Update the updatedAt field before saving
+UserSchema.pre("save", function (next) {
+  this.updatedAt = Date.now();
+  next();
+});
 
 export default mongoose.model("User", UserSchema);
