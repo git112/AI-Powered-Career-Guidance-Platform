@@ -1,33 +1,73 @@
 import axios from 'axios';
 
+// Create an axios instance with base URL and default headers
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api', // Make sure this matches your backend port
+  baseURL: 'http://localhost:8000',
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true
 });
 
-// Add request interceptor for debugging
+// // Add a request interceptor to include the auth token in requests
+// api.interceptors.request.use(
+//   (config) => {
+//     const token = localStorage.getItem('token');
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   }
+// );
+
+// // Add a response interceptor to handle common errors
+// api.interceptors.response.use(
+//   response => response,
+//   error => {
+//     console.error('API Error:', error.response || error);
+//     return Promise.reject(error);
+//   }
+// );
+
+// export default api;
+
+
+// Request interceptor for API calls
 api.interceptors.request.use(
-  (config) => {
-    console.log('Making request to:', `${config.baseURL}${config.url}`);
+  async config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`,
+      };
+    }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
+  error => {
+    Promise.reject(error);
   }
 );
 
-// Add response interceptor for error handling
+// Response interceptor for API calls
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error('API Error:', {
-      url: error.config?.url,
-      status: error.response?.status,
-      data: error.response?.data
-    });
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+    
+    // Handle token refresh or redirect to login on auth errors
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // Handle token refresh logic here if needed
+      
+      // For now, just redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+      window.location.href = '/login';
+    }
+    
     return Promise.reject(error);
   }
 );

@@ -7,6 +7,10 @@ import OnBoarding from './pages/OnBoarding';
 import AuthPage from './pages/AuthPage';
 import ProtectedRoute from './components/protectedRoutes';
 import ProfileEdit from './pages/ProfileEdit';
+import ResumeBuilder from './pages/ResumeBuilder';
+// import CoverLetterGenerator from './pages/CoverLetterGenerator';
+// import CompetencyTest from './pages/CompetencyTest';
+// import CompetencyTest from './pages/CompetencyTest';
 import './index.css';
 
 function App() {
@@ -25,7 +29,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route path="/industry-insights" element={<IndustryInsightsPage />} />
           <Route 
             path="/profile/edit" 
             element={
@@ -34,6 +37,37 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
+          {/* Main protected routes */}
+          <Route path="/industry-insights" element={
+            <ProtectedRoute>
+              <IndustryInsightsPage />
+            </ProtectedRoute>
+          } />
+          
+          {/* Tools routes */}
+          <Route path="/resume-generator" element={
+            <ProtectedRoute>
+              <ResumeBuilder />
+            </ProtectedRoute>
+          } />
+          {/* <Route path="/cover-letter" element={
+            <ProtectedRoute>
+              <CoverLetterGenerator />
+            </ProtectedRoute>
+          } />
+          <Route path="/competency-test" element={
+            <ProtectedRoute>
+              <CompetencyTest />
+            </ProtectedRoute>
+          } /> */}
+          
+          {/* Legacy routes for backward compatibility */}
+          <Route path="/dashboard/industry-insights" element={
+            <ProtectedRoute>
+              <IndustryInsightsPage />
+            </ProtectedRoute>
+          } />
         </Routes>
       </div>
     </Router>
