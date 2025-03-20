@@ -1,14 +1,3 @@
-// // import LandingPage from './pages/Landingpage'
-// import IndustryInsightsPage from './pages/IndustryInsightsPage'
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import Header from './components/Header';
-// import LandingPage from './pages/Landingpage';
-// import OnBoarding from './pages/OnBoarding';
-// import AuthPage from './pages/AuthPage';
-// import ProtectedRoute from './components/protectedRoutes';
-// import ProfileEdit from './pages/ProfileEdit';
-// import ResumeBuilder from './pages/ResumeBuilder';
-// // import CompetencyTest from './pages/CompetencyTest';
 
 // import './index.css';
 
