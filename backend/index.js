@@ -7,6 +7,8 @@ import connectDB from './utils/db.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import industryInsightRoutes from './routes/industryInsightsRoutes.js';
+// import competencyRoutes from './routes/compTest.js';
+
 
 dotenv.config();
 const app = express();
@@ -25,15 +27,13 @@ if (!process.env.MONGO_URI) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const corsOptions = {
-    origin: 'http://localhost:5174',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-};
+app.use(cors({
+  origin: 'http://localhost:5174', // Your frontend URL
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization'],
+}));
 
-app.use(cors(corsOptions));
-app.use(cookieParser());
+
 
 // Middleware to log requests
 app.use((req, res, next) => {
@@ -50,6 +50,7 @@ app.get('/api/test', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/', userRoutes);
 app.use('/api/industry-insights', industryInsightRoutes);
+// app.use('/', competencyRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

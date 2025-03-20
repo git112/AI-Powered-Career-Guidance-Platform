@@ -61,6 +61,10 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  completedTests: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CompTest'
+  },
   updatedAt: {
     type: Date,
     default: Date.now,

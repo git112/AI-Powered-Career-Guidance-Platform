@@ -93,13 +93,6 @@ const AuthStatus = () => {
                   Resume Generator
                 </Link>
                 <Link 
-                  to="/cover-letter" 
-                  className="block px-4 py-2 text-cyan-50 hover:bg-zinc-700 flex items-center"
-                >
-                  <FaEnvelope className="mr-2 text-cyan-400" />
-                  Cover Letter Generator
-                </Link>
-                <Link 
                   to="/competency-test" 
                   className="block px-4 py-2 text-cyan-50 hover:bg-zinc-700 flex items-center"
                 >

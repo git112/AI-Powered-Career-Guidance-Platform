@@ -304,63 +304,62 @@ function IndustryInsightsPage() {
         )}
         
         {/* Content Grid - Adaptive Layout */}
-        <div className={`grid grid-cols-1 ${gridLayoutClass} gap-6`}>
-          {/* Skills vs Market Demand */}
-          {hasSkillsMarketDemand && (
-            <div id="skills-section" className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
-              <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
-                <FaChartBar className="mr-3 text-cyan-400" />
-                Skills vs Market Demand
-              </h3>
-              <div className="h-80 p-2">
-                <SkillsVsMarketChart data={marketDemand} userSkills={userData?.skills || []} />
-              </div>
-            </div>
-          )}
-          
-          {/* Salary Information */}
-          {hasSalaryInfo && (
-            <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
-              <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
-                <FaChartLine className="mr-3 text-cyan-400" />
-                Salary Information
-              </h3>
-              
-              {salaryRanges && salaryRanges.length > 0 && (
+        <div className="grid grid-cols-1 gap-6">
+          {/* Skills vs Market Demand and Salary Information in one row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {hasSkillsMarketDemand && (
+              <div id="skills-section" className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
+                <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
+                  <FaChartBar className="mr-3 text-cyan-400" />
+                  Skills vs Market Demand
+                </h3>
                 <div className="h-80 p-2">
-                  <SalaryRangesChart data={salaryRanges} />
+                  <SkillsVsMarketChart marketDemand={marketDemand} userSkills={userData?.skills || []} />
                 </div>
-              )}
-              
-              {/* Expected Salary Range */}
-              {expectedSalaryRange && (
-                <div className="flex flex-col md:flex-row justify-center items-center space-y-6 md:space-y-0 md:space-x-12 mt-6 p-6 bg-gradient-to-r from-cyan-900/20 to-zinc-800/20 rounded-lg border border-zinc-700">
-                  <div className="text-center">
-                    <p className="text-cyan-400/80 text-sm uppercase tracking-wide font-medium">Minimum</p>
-                    <p className="text-3xl font-bold text-cyan-50 mt-1">
-                      {new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: expectedSalaryRange.currency || 'USD',
-                        maximumFractionDigits: 0
-                      }).format(expectedSalaryRange.min)}
-                    </p>
+              </div>
+            )}
+
+            {hasSalaryInfo && (
+              <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
+                <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
+                  <FaChartLine className="mr-3 text-cyan-400" />
+                  Salary Information
+                </h3>
+                {salaryRanges && salaryRanges.length > 0 && (
+                  <div className="h-80 p-2">
+                    <SalaryRangesChart data={salaryRanges} />
                   </div>
-                  <div className="hidden md:block h-16 border-l border-zinc-700"></div>
-                  <div className="text-center">
-                    <p className="text-cyan-400/80 text-sm uppercase tracking-wide font-medium">Maximum</p>
-                    <p className="text-3xl font-bold text-cyan-50 mt-1">
-                      {new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: expectedSalaryRange.currency || 'USD',
-                        maximumFractionDigits: 0
-                      }).format(expectedSalaryRange.max)}
-                    </p>
+                )}
+                {expectedSalaryRange && (
+                  <div className="flex flex-col md:flex-row justify-center items-center space-y-6 md:space-y-0 md:space-x-12 mt-6 p-6 bg-gradient-to-r from-cyan-900/20 to-zinc-800/20 rounded-lg border border-zinc-700">
+                    <div className="text-center">
+                      <p className="text-cyan-400/80 text-sm uppercase tracking-wide font-medium">Minimum</p>
+                      <p className="text-3xl font-bold text-cyan-50 mt-1">
+                        {new Intl.NumberFormat('en-US', {
+                          style: 'currency',
+                          currency: expectedSalaryRange.currency || 'USD',
+                          maximumFractionDigits: 0
+                        }).format(expectedSalaryRange.min)}
+                      </p>
+                    </div>
+                    <div className="hidden md:block h-16 border-l border-zinc-700"></div>
+                    <div className="text-center">
+                      <p className="text-cyan-400/80 text-sm uppercase tracking-wide font-medium">Maximum</p>
+                      <p className="text-3xl font-bold text-cyan-50 mt-1">
+                        {new Intl.NumberFormat('en-US', {
+                          style: 'currency',
+                          currency: expectedSalaryRange.currency || 'USD',
+                          maximumFractionDigits: 0
+                        }).format(expectedSalaryRange.max)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
-          
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Other sections */}
           {/* Skill-Based Salary Boosts */}
           {hasSkillBasedBoosts && (
             <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
@@ -387,7 +386,7 @@ function IndustryInsightsPage() {
               </div>
             </div>
           )}
-          
+
           {/* Top Companies */}
           {hasTopCompanies && (
             <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
@@ -400,7 +399,7 @@ function IndustryInsightsPage() {
               </div>
             </div>
           )}
-          
+
           {/* Recommended Courses */}
           {hasRecommendedCourses && (
             <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
@@ -413,7 +412,7 @@ function IndustryInsightsPage() {
               </div>
             </div>
           )}
-          
+
           {/* Career Path Insights */}
           {hasCareerPathInsights && (
             <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
@@ -438,7 +437,7 @@ function IndustryInsightsPage() {
               </div>
             </div>
           )}
-          
+
           {/* Emerging Trends */}
           {hasEmergingTrends && (
             <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">

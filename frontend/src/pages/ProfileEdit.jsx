@@ -139,8 +139,8 @@ const ProfileEdit = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="max-w-2xl mx-auto bg-zinc-800/50 p-6 rounded-xl border border-zinc-700">
+    <div className="container mx-auto py-8 px-4 pt-20">
+      <div className="max-w-2xl mx-auto bg-zinc-800/50 p-6 rounded-xl border border-cyan-400">
         <h2 className="text-2xl font-bold text-cyan-50 mb-6">Edit Your Profile</h2>
         
         <form onSubmit={handleSubmit} className="space-y-6">
