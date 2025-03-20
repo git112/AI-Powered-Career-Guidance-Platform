@@ -1,26 +1,4 @@
 
-          
-//           {/* Main protected routes */}
-//           <Route path="/industry-insights" element={
-//             <ProtectedRoute>
-//               <IndustryInsightsPage />
-//             </ProtectedRoute>
-//           } />
-          
-//           {/* Tools routes */}
-//           <Route path="/resume-generator" element={
-//             <ProtectedRoute>
-//               <ResumeBuilder />
-//             </ProtectedRoute>
-//           } />
-          
-//           {/* <Route path="/competency-test/*" element={<CompetencyTest />} /> */}
-//           {/* Legacy routes for backward compatibility */}
-//           <Route path="/dashboard/industry-insights" element={
-//             <ProtectedRoute>
-//               <IndustryInsightsPage />
-//             </ProtectedRoute>
-//           } />
 
 // <Route path="/competency-test" element={
 //         <ProtectedRoute>
