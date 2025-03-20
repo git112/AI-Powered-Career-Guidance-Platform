@@ -1,30 +1,4 @@
 
-// import './index.css';
-
-// function App() {
-//   return (
-//     <Router>
-//       <Header/>
-//       <div className='min-h-screen'>
-//         <Routes>
-//           <Route path="/" element={<LandingPage />} />
-//           <Route path="/auth" element={<AuthPage />} />
-//           <Route 
-//             path="/onboarding" 
-//             element={
-//               <ProtectedRoute>
-//                 <OnBoarding />
-//               </ProtectedRoute>
-//             } 
-//           />
-//           <Route 
-//             path="/profile/edit" 
-//             element={
-//               <ProtectedRoute>
-//                 <ProfileEdit />
-//               </ProtectedRoute>
-//             } 
-//           />
           
 //           {/* Main protected routes */}
 //           <Route path="/industry-insights" element={
