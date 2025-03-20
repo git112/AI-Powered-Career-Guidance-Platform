@@ -89,7 +89,7 @@ const CompetencyTestUI = ({ quizResult }) => {
   };
   
   return (
-    <div className="bg-gradient-to-b from-zinc-900 to-black min-h-screen text-white pt-16 pb-16">
+    <div className="bg-gradient-to-b from-zinc-900 to-black min-h-screen text-white pt-20 pb-16">
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="relative bg-gradient-to-r from-cyan-900/30 to-zinc-900 p-6 rounded-2xl border border-zinc-800 shadow-lg mb-8">

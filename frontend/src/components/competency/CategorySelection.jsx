@@ -41,8 +41,8 @@ const CompetencyCategories = () => {
   };
   
   return (
-    <div className="min-h-screen bg-black text-gray-200 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-black text-gray-200 p-6 pt-20">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-10">
           <h1 className="text-4xl font-bold text-cyan-400 mb-2">Competency Assessment</h1>
           <p className="text-cyan-100">Select a category to assess your skills and discover career opportunities</p>

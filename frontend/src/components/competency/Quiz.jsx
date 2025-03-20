@@ -331,8 +331,8 @@ const CompetencyQuiz = ({ categoryId }) => {
   }
   
   return (
-    <div className="min-h-screen bg-black text-gray-200 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-black text-gray-200 p-6 pt-20 ">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-cyan-400">{quizData.category} Competency Assessment</h1>
