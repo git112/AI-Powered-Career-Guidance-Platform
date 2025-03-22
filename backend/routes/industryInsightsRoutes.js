@@ -7,7 +7,7 @@ const router = express.Router();
 // router.put('/api/users/profile', authMiddleware, updateProfile);
 router.post('/generate', authMiddleware, generateInsights);
 
-// Get user's insights
+
 router.get('/user', authMiddleware, getInsights);
 
 export default router;
