@@ -1,4 +1,3 @@
-// CompetencyQuiz.jsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -101,33 +100,44 @@ const CompetencyQuiz = () => {
   const handleQuizSubmit = async () => {
     setQuizSubmitted(true)
     try {
-      const answersArray = quizData.originalQuestions.map((q, index) => 
-        answers[`q${index + 1}`] || ""
-      )
-
-      let correctCount = 0
+      const answersArray = quizData.originalQuestions.map((q, index) => {
+        const questionId = `q${index + 1}`;
+        return answers[questionId] || "";
+      });
+  
+      let correctCount = 0;
       const questionsWithResults = quizData.originalQuestions.map((q, index) => {
-        const questionId = `q${index + 1}`
-        const isCorrect = answers[questionId] === q.correctAnswer
-        if (isCorrect) correctCount++
+        const questionId = `q${index + 1}`;
+        const userAnswer = answers[questionId] || "";
+        const isCorrect = userAnswer === q.correctAnswer;
+        
+        if (isCorrect) correctCount++;
+        
         return {
           question: q.question,
-          answer: q.correctAnswer,
-          userAnswer: answers[questionId] || "Not answered",
+          correctAnswer: q.correctAnswer,
+          userAnswer: userAnswer || "Not answered",
           isCorrect,
           explanation: q.explanation,
         }
-      })
-
-      const score = Math.round((correctCount / quizData.originalQuestions.length) * 100)
-      const result = await submitQuiz({
+      });
+  
+      const score = Math.round((correctCount / quizData.originalQuestions.length) * 100);
+      
+      const quizSubmissionData = {
         questions: quizData.originalQuestions,
         answers: answersArray,
-        score,
+        score: score,
         category,
-        subIndustry
-      })
-
+        subIndustry,
+        correctAnswers: quizData.originalQuestions.map(q => q.correctAnswer),
+        questionsWithResults
+      };
+  
+      console.log('Quiz Submission Data:', JSON.stringify(quizSubmissionData, null, 2));
+  
+      const result = await submitQuiz(quizSubmissionData);
+  
       navigate("/competency-test/results", {
         state: {
           quizResult: {
@@ -135,22 +145,34 @@ const CompetencyQuiz = () => {
             category,
             subIndustry,
             questions: questionsWithResults,
-            improvementTip: result.improvementTip,
+            improvementTip: result.improvementTip || "No specific improvement tips available",
+            recommendations: result.recommendations // Add this line to pass recommendations
           },
         },
       })
     } catch (error) {
-      setError("Failed to submit quiz. Please try again.")
+      console.error("Quiz Submission Full Error:", error);
+      
+      let errorMessage = "Failed to submit quiz. Please try again.";
+      try {
+        const errorDetails = JSON.parse(error.message);
+        errorMessage += ` (Status: ${errorDetails.status})`;
+        console.error('Detailed Error Information:', errorDetails);
+      } catch {
+        // If parsing fails, use default error message
+      }
+  
+      setError(errorMessage);
       setQuizSubmitted(false)
     }
   }
-
+  
   const answeredQuestions = Object.keys(answers).length
   const totalQuestions = quizData?.questions?.length || 0
   const progressPercentage = (answeredQuestions / totalQuestions) * 100
 
   if (loading) return (
-    <div className="min-h-screen bg-black text-gray-200 flex items-center justify-center">
+    <div className="min-h-screen bg-black text-gray-200 flex flex-col items-center justify-center">
       <Loader className="animate-spin text-cyan-400 mx-auto mb-4" size={40} />
       <p className="text-xl">Loading your competency test...</p>
     </div>
@@ -160,7 +182,7 @@ const CompetencyQuiz = () => {
     <div className="min-h-screen bg-black text-gray-200 flex items-center justify-center">
       <AlertCircle className="text-red-500 mx-auto mb-4" size={40} />
       <p className="text-xl mb-4">{error}</p>
-      <button onClick={() => navigate("/competency-test/categories")}
+      <button onClick={() => navigate("/competency-test")}
         className="px-6 py-3 bg-cyan-700 text-white rounded-lg hover:bg-cyan-600">
         Back to Categories
       </button>

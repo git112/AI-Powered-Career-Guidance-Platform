@@ -1,5 +1,6 @@
 // quizC.js (Backend router)
 import { generateQuiz, saveQuizResult, getAssessments } from "../services/aiQuiz.js";
+import RecommendationService from "../services/aiRecommendation.js"; 
 import express from "express";
 const router = express.Router();
 
@@ -26,17 +27,50 @@ router.get("/generate", async (req, res) => {
   }
 });
 
+// router.post("/submit", async (req, res) => {
+//   try {
+//     const { questions, answers, score, category, subIndustry } = req.body;
+//     const result = await saveQuizResult(questions, answers, score, category, subIndustry);
+//     res.json(result);
+//   } catch (error) {
+//     console.error("Error submitting quiz:", error);
+//     res.status(500).json({ error: "Failed to submit quiz" });
+//   }
+// });
+
+
 router.post("/submit", async (req, res) => {
   try {
-    const { questions, answers, score, category, subIndustry } = req.body;
-    const result = await saveQuizResult(questions, answers, score, category, subIndustry);
-    res.json(result);
+    const { questions, answers, score, category, subIndustry } = req.body
+    
+    // Save quiz result
+    const result = await saveQuizResult(questions, answers, score, category, subIndustry)
+    
+    // Generate AI-powered recommendations
+    const assessmentData = {
+      category,
+      subIndustry,
+      quizScore: score,
+      questions: questions.map((q, index) => ({
+        question: q.question,
+        isCorrect: q.correctAnswer === answers[index]
+      }))
+    }
+    
+    const recommendations = await RecommendationService.generateRecommendations(assessmentData)
+    
+    // Merge result with recommendations
+    const finalResult = {
+      ...result,
+      recommendations
+    }
+    
+    res.json(finalResult)
   } catch (error) {
-    console.error("Error submitting quiz:", error);
-    res.status(500).json({ error: "Failed to submit quiz" });
+    console.error("Error submitting quiz:", error)
+    res.status(500).json({ error: "Failed to submit quiz" })
   }
-});
-
+})
 router.get("/assessments", async (req, res) => {
   try {
     const assessments = await getAssessments();

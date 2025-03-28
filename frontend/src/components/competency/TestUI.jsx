@@ -89,8 +89,12 @@ const CompetencyTestUI = () => {
     navigate("/competency-test")
   }
 
-  // Rest of the component remains mostly the same
-
+  const recommendations = quizResult?.recommendations || {
+    jobRecommendations: [],
+    learningResources: [],
+    skillDevelopmentAreas: [],
+    careerInsights: ""
+  }
   return (
     <div className="bg-gradient-to-b from-zinc-900 to-black min-h-screen text-white pt-20 pb-16">
       <div className="container mx-auto px-4 py-8">
@@ -251,8 +255,17 @@ const CompetencyTestUI = () => {
               Job Recommendations
             </h3>
 
+            {recommendations.careerInsights && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-cyan-900/20 to-zinc-800/20 rounded-lg border border-cyan-900/30">
+                <p className="text-cyan-100 italic">
+                  <span className="font-semibold text-cyan-300">Career Insight: </span>
+                  {recommendations.careerInsights}
+                </p>
+              </div>
+            )}
+
             <div className="space-y-6">
-              {getJobRecommendations().map((job, index) => (
+              {recommendations.jobRecommendations.map((job, index) => (
                 <div
                   key={index}
                   className="border border-zinc-700 hover:border-cyan-500 rounded-lg overflow-hidden transition-all shadow-md"
@@ -260,16 +273,16 @@ const CompetencyTestUI = () => {
                   <div className="bg-gradient-to-r from-cyan-900/30 to-zinc-800/30 p-4 flex justify-between items-center">
                     <h4 className="text-lg font-semibold text-cyan-50">{job.title}</h4>
                     <div className="bg-cyan-900/40 text-cyan-300 px-3 py-1 rounded-full font-medium">
-                      {job.match}% Match
+                      {job.matchPercentage}% Match
                     </div>
                   </div>
                   <div className="p-4 bg-gradient-to-br from-zinc-800/30 to-zinc-900/30">
                     <div className="mb-4">
                       <p className="text-zinc-400 mb-2">
-                        <span className="text-cyan-300">Your Skills:</span>
+                        <span className="text-cyan-300">Required Skills:</span>
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {userData.skills.map((skill, i) => (
+                        {job.requiredSkills.map((skill, i) => (
                           <span key={i} className="bg-cyan-900/20 text-cyan-300 px-3 py-1 rounded-full text-sm">
                             {skill}
                           </span>
@@ -288,10 +301,19 @@ const CompetencyTestUI = () => {
                         ))}
                       </div>
                     </div>
-                    <div className="mt-4 pt-4 border-t border-zinc-700">
-                      <button className="text-cyan-400 font-medium flex items-center hover:text-cyan-300 transition-colors">
-                        View Job Details <ChevronRight size={16} className="ml-1" />
-                      </button>
+                    <div className="mt-4 space-y-2">
+                      <p className="text-zinc-400">
+                        <span className="text-cyan-300">Career Path: </span>
+                        {job.potentialCareerPath}
+                      </p>
+                      <p className="text-zinc-400">
+                        <span className="text-cyan-300">Company Types: </span>
+                        {job.companyTypes.join(", ")}
+                      </p>
+                      <p className="text-zinc-400">
+                        <span className="text-cyan-300">Growth Potential: </span>
+                        {job.growthPotential}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -307,20 +329,39 @@ const CompetencyTestUI = () => {
               Recommended Learning Resources
             </h3>
 
+            {recommendations.skillDevelopmentAreas.length > 0 && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-cyan-900/20 to-zinc-800/20 rounded-lg border border-cyan-900/30">
+                <p className="text-cyan-100">
+                  <span className="font-semibold text-cyan-300">Skill Development Areas: </span>
+                  {recommendations.skillDevelopmentAreas.join(", ")}
+                </p>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {getLearningResources().map((resource, index) => (
+              {recommendations.learningResources.map((resource, index) => (
                 <div
                   key={index}
                   className="bg-gradient-to-br from-zinc-800/30 to-zinc-900/30 p-5 rounded-lg border border-zinc-700 hover:border-cyan-500 transition-all shadow-md h-full flex flex-col"
                 >
                   <h4 className="text-cyan-300 font-medium text-lg mb-2">{resource.title}</h4>
-                  <div className="flex justify-between text-zinc-400 mb-4 mt-auto">
-                    <span className="bg-zinc-800/40 px-3 py-1 rounded-full text-sm">{resource.type}</span>
-                    <span className="bg-cyan-900/20 text-cyan-300 px-3 py-1 rounded-full text-sm">
-                      {resource.difficulty}
-                    </span>
+                  <div className="flex flex-col space-y-2 mt-2">
+                    <div className="flex justify-between text-zinc-400">
+                      <span className="bg-zinc-800/40 px-3 py-1 rounded-full text-sm">{resource.type}</span>
+                      <span className="bg-cyan-900/20 text-cyan-300 px-3 py-1 rounded-full text-sm">
+                        {resource.difficulty}
+                      </span>
+                    </div>
+                    <div className="text-zinc-400">
+                      <p><span className="text-cyan-300">Focus Areas:</span> {resource.focusAreas.join(", ")}</p>
+                      <p><span className="text-cyan-300">Estimated Time:</span> {resource.estimatedCompletionTime}</p>
+                      <p><span className="text-cyan-300">Platform:</span> {resource.platform}</p>
+                    </div>
+                    <div className="text-zinc-400 mt-2 italic">
+                      <p><span className="text-cyan-300">Why Recommended:</span> {resource.recommendationReason}</p>
+                    </div>
                   </div>
-                  <button className="text-cyan-400 font-medium flex items-center hover:text-cyan-300 transition-colors mt-2">
+                  <button className="text-cyan-400 font-medium flex items-center hover:text-cyan-300 transition-colors mt-auto">
                     Access Resource <ChevronRight size={16} className="ml-1" />
                   </button>
                 </div>
@@ -328,6 +369,8 @@ const CompetencyTestUI = () => {
             </div>
           </div>
         )}
+
+
       </div>
     </div>
   )

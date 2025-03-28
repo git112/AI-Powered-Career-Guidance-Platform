@@ -99,6 +99,7 @@ const CompetencyCategories = () => {
           <h1 className="text-4xl font-bold text-cyan-400 mb-2">Competency Assessment</h1>
           <p className="text-cyan-100">Select a category and specific area to assess your skills</p>
         </div>
+        
 
         {/* Category Selection */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
