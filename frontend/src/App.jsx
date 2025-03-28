@@ -9,6 +9,7 @@ import ProfileEdit from './pages/ProfileEdit';
 import ResumeBuilder from './pages/ResumeBuilder';
 import IndustryInsightsPage from './pages/IndustryInsightsPage';
 import CompetencyTest from './pages/CompetencyTest';
+import CompetencyQuiz from './components/competency/Quiz';
 
 import './index.css';
 
@@ -54,7 +55,7 @@ function App() {
           {/* Competency Test Routes */}
           <Route path="/competency-test" element={
             <ProtectedRoute>
-              <CompetencyTest />
+              <CompetencyTest page="categories" />
             </ProtectedRoute>
           } />
           <Route path="/competency-test/quiz/:categoryId" element={

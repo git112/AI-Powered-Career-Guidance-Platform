@@ -14,9 +14,13 @@ const CompetencyTest = ({ page }) => {
   
   // Determine which page to show
   const renderPage = () => {
-    if (page === "quiz" && categoryId) {
+    console.log('Rendering page:', page);
+    console.log('Category ID:', categoryId);
+    console.log('Location State:', location.state);
+
+    if (page === "quiz") {
       return <CompetencyQuiz categoryId={categoryId} />;
-    } else if (page === "results" || hasResults) {
+    } else if (page === "results") {
       return <CompetencyTestUI quizResult={location.state?.quizResult} />;
     } else {
       return <CompetencyCategories />;

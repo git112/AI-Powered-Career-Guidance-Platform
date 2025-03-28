@@ -7,6 +7,7 @@ import connectDB from './utils/db.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import industryInsightRoutes from './routes/industryInsightsRoutes.js';
+import quizRoutes from './routes/quizRoutes.js';
 // import competencyRoutes from './routes/compTest.js';
 
 
@@ -50,6 +51,8 @@ app.get('/api/test', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/', userRoutes);
 app.use('/api/industry-insights', industryInsightRoutes);
+app.use('/api/competency-quiz', quizRoutes);
+
 // app.use('/', competencyRoutes);
 
 // Error handling middleware
