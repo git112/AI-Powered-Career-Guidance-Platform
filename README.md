@@ -9,7 +9,7 @@ JobNest is an AI-powered platform designed to help users land their dream jobs b
 - **Industry Insights**: Access real-time data on industry trends, salary ranges, and in-demand skills.
 - **Resume Builder**: Create an ATS-optimized resume with AI assistance and get feedback.
 - **Competency Testing**: Take assessments to showcase your skills and stand out to employers.
-- **Salary Negotiation**: Get personalized salary ranges and negotiation tips for your target roles.
+
 
 ## Tech Stack
 
