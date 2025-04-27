@@ -8,7 +8,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <GoogleOAuthProvider 
       clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-      redirectUri={`${window.location.origin}/auth`}
+      
     >
       <App />
     </GoogleOAuthProvider>

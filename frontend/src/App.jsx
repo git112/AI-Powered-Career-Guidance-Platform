@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import LandingPage from './pages/Landingpage';
@@ -9,7 +8,8 @@ import ProfileEdit from './pages/ProfileEdit';
 import ResumeBuilder from './pages/ResumeBuilder';
 import IndustryInsightsPage from './pages/IndustryInsightsPage';
 import CompetencyTest from './pages/CompetencyTest';
-import CompetencyQuiz from './components/competency/Quiz';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 import './index.css';
 
@@ -19,8 +19,13 @@ function App() {
       <Header/>
       <div className='min-h-screen'>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          
+          {/* Protected routes */}
           <Route 
             path="/onboarding" 
             element={
