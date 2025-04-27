@@ -34,7 +34,7 @@ const NextActionsSection = ({ nextActions }) => (
     </h3>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {nextActions.map((action, index) => (
-        <div 
+        <div
           key={index}
           className="bg-gradient-to-br from-zinc-800 to-zinc-900 p-4 rounded-lg border border-zinc-700 hover:border-cyan-500 transition-all shadow-lg h-full"
         >
@@ -58,6 +58,7 @@ function IndustryInsightsPage() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showWelcomeBack, setShowWelcomeBack] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,20 +71,39 @@ function IndustryInsightsPage() {
           navigate('/auth');
           return;
         }
+
+        // Get user profile data
         const userRes = await api.get("/api/users/profile", {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUserData(userRes.data);
         console.log("User data loaded:", userRes.data);
+
+        // If user has no industry, redirect to onboarding
         if (!userRes.data.industry) {
           navigate('/onboarding');
           return;
         }
+
+        // For returning users, show a welcome back message
+        const isReturningUser = localStorage.getItem('previousUserData') !== null;
+        if (isReturningUser) {
+          setShowWelcomeBack(true);
+          console.log("Welcome back! Showing updated insights.");
+        }
+
+        // Get industry insights
         const insightRes = await api.get("/api/industry-insights/user", {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log("Industry insights loaded:", insightRes.data);
         setInsightData(insightRes.data);
+
+        // Update the previous user data record
+        localStorage.setItem('previousUserData', JSON.stringify({
+          email: userRes.data.email,
+          lastLogin: new Date().toISOString()
+        }));
       } catch (err) {
         console.error("Error fetching insights:", err);
         setError("Failed to load industry insights. Please try again later.");
@@ -97,10 +117,10 @@ function IndustryInsightsPage() {
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -123,7 +143,7 @@ function IndustryInsightsPage() {
             <FaInfoCircle className="mr-3 text-2xl" />
             <span>{error}</span>
           </div>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="w-full bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md"
           >
@@ -145,7 +165,7 @@ function IndustryInsightsPage() {
           <p className="text-zinc-400 mb-6 text-center">
             We couldn't find any industry insights for your profile. Please try again later.
           </p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="w-full bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md"
           >
@@ -156,10 +176,10 @@ function IndustryInsightsPage() {
     );
   }
 
-  const { 
-    industryOverview, 
-    marketDemand, 
-    salaryRanges, 
+  const {
+    industryOverview,
+    marketDemand,
+    salaryRanges,
     expectedSalaryRange,
     skillBasedBoosts,
     topCompanies,
@@ -215,8 +235,8 @@ function IndustryInsightsPage() {
   const useSingleColumnLayout = contentSections < 3;
 
   // Setup grid layout class based on content
-  const gridLayoutClass = useThreeColumnLayout 
-    ? 'lg:grid-cols-3' 
+  const gridLayoutClass = useThreeColumnLayout
+    ? 'lg:grid-cols-3'
     : (useTwoColumnLayout ? 'lg:grid-cols-2' : '');
 
   return (
@@ -233,6 +253,14 @@ function IndustryInsightsPage() {
               <h2 className="text-xl text-cyan-300 font-medium">
                 {userData?.industry || "Your Industry"}
               </h2>
+
+              {/* Welcome back message for returning users */}
+              {showWelcomeBack && (
+                <div className="mt-2 text-green-400 text-sm flex items-center">
+                  <FaCheck className="mr-2" />
+                  Welcome back! Here are your updated insights.
+                </div>
+              )}
             </div>
             <button
               onClick={() => navigate('/profile/edit')}
@@ -250,7 +278,7 @@ function IndustryInsightsPage() {
             <span className="mt-1 md:mt-0">Next update: {formatDate(insightData.nextUpdate)}</span>
           </div>
         </div>
-        
+
         {/* Quick Actions - Always show at the top */}
         <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg mb-6">
           <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
@@ -258,7 +286,7 @@ function IndustryInsightsPage() {
             Quick Actions
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <ActionCard 
+            <ActionCard
               icon={<FaUser className="text-cyan-400" />}
               title="Update Your Skills"
               description="Add your latest skills to get more accurate insights"
@@ -266,7 +294,7 @@ function IndustryInsightsPage() {
               onClick={() => navigate('/profile/edit')}
               className="hover:translate-y-px transition-all h-full"
             />
-            <ActionCard 
+            <ActionCard
               icon={<FaFire className="text-orange-400" />}
               title="Trending Skills"
               description="See what skills are in high demand right now"
@@ -274,7 +302,7 @@ function IndustryInsightsPage() {
               onClick={() => document.getElementById('skills-section')?.scrollIntoView({ behavior: 'smooth' })}
               className="hover:translate-y-px transition-all h-full"
             />
-            <ActionCard 
+            <ActionCard
               icon={<FaCalendar className="text-purple-400" />}
               title="Career Planning"
               description="Get personalized career path recommendations"
@@ -284,7 +312,7 @@ function IndustryInsightsPage() {
             />
           </div>
         </div>
-        
+
         {/* Industry Overview - Always full width if available */}
         {industryOverview && (
           <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg mb-6">
@@ -295,14 +323,14 @@ function IndustryInsightsPage() {
             <div className="prose prose-invert max-w-none">
               <p className="text-zinc-300 leading-relaxed">{industryOverview}</p>
             </div>
-            
+
             {/* Next Actions Section - Full width inside overview */}
             {hasNextActions && (
               <NextActionsSection nextActions={nextActions} />
             )}
           </div>
         )}
-        
+
         {/* Content Grid - Adaptive Layout */}
         <div className="grid grid-cols-1 gap-6">
           {/* Skills vs Market Demand and Salary Information in one row */}
@@ -369,8 +397,8 @@ function IndustryInsightsPage() {
               </h3>
               <div className="grid grid-cols-1 gap-2">
                 {skillBasedBoosts.map((boost, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="flex justify-between items-center p-3 bg-gradient-to-r from-zinc-700/30 to-zinc-800/30 rounded-lg border border-zinc-700 hover:border-green-500 transition-all"
                   >
                     <span className="text-cyan-50 font-medium">{boost.skill}</span>
@@ -422,8 +450,8 @@ function IndustryInsightsPage() {
               </h3>
               <div className="grid grid-cols-1 gap-4">
                 {careerPathInsights.map((path, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="bg-gradient-to-br from-zinc-700/30 to-zinc-800/30 p-5 rounded-lg border border-zinc-700 hover:border-cyan-500 transition-all shadow-md h-full flex flex-col"
                   >
                     <h4 className="text-cyan-300 font-medium text-lg mb-2">{path.title}</h4>
@@ -447,7 +475,7 @@ function IndustryInsightsPage() {
               </h3>
               <div className="space-y-3">
                 {emergingTrends.map((trend, index) => (
-                  <InsightCard 
+                  <InsightCard
                     key={index}
                     icon={<FaBullhorn className="text-cyan-400" />}
                     title={trend.name}

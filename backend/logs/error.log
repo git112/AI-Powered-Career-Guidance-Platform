@@ -1,0 +1,451 @@
+2025-04-24 22:51:28 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-24 22:51:28 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-24 22:52:24 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-24 22:52:24 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-24 22:52:41 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-24 22:52:41 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-24 22:53:17 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-24 22:53:17 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-25 11:14:37 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-25 11:14:37 [ERROR]: Email service error: getaddrinfo ENOTFOUND smtp.gmail.com {
+  "errno": -3008,
+  "code": "EDNS",
+  "syscall": "getaddrinfo",
+  "hostname": "smtp.gmail.com",
+  "command": "CONN",
+  "stack": "Error: getaddrinfo ENOTFOUND smtp.gmail.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26)"
+}
+2025-04-25 11:14:37 [ERROR]: MongoDB Connection Error: querySrv ECONNREFUSED _mongodb._tcp.cluster0.gid1w.mongodb.net {
+  "code": "ECONNREFUSED",
+  "syscall": "querySrv",
+  "hostname": "_mongodb._tcp.cluster0.gid1w.mongodb.net",
+  "stack": "Error: querySrv ECONNREFUSED _mongodb._tcp.cluster0.gid1w.mongodb.net\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:291:17)"
+}
+2025-04-25 11:18:54 [ERROR]: Server error: listen EACCES: permission denied 8000; {
+  "code": "EACCES",
+  "errno": -4092,
+  "syscall": "listen",
+  "address": "8000;",
+  "port": -1,
+  "stack": "Error: listen EACCES: permission denied 8000;\n    at Server.setupListenHandle [as _listen2] (node:net:1882:21)\n    at listenInCluster (node:net:1961:12)\n    at Server.listen (node:net:2080:5)\n    at startServer (file:///D:/sgp1/backend/index.js:197:17)\n    at file:///D:/sgp1/backend/index.js:224:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)"
+}
+2025-04-25 16:59:36 [ERROR]: Registration error: Operation `users.findOne()` buffering timed out after 10000ms {
+  "stack": "MongooseError: Operation `users.findOne()` buffering timed out after 10000ms\n    at Timeout.<anonymous> (D:\\sgp1\\backend\\node_modules\\mongoose\\lib\\drivers\\node-mongodb-native\\collection.js:185:23)\n    at listOnTimeout (node:internal/timers:581:17)\n    at process.processTimers (node:internal/timers:519:7)"
+}
+2025-04-25 16:59:48 [ERROR]: Email service error: Connection closed unexpectedly {
+  "code": "ECONNECTION",
+  "command": "CONN",
+  "stack": "Error: Connection closed unexpectedly\n    at SMTPConnection._onClose (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:863:34)\n    at SMTPConnection._onSocketClose (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:197:42)\n    at Object.onceWrapper (node:events:634:26)\n    at TLSSocket.emit (node:events:531:35)\n    at node:net:339:12\n    at Socket.done (node:_tls_wrap:657:7)\n    at Object.onceWrapper (node:events:634:26)\n    at Socket.emit (node:events:531:35)\n    at TCP.<anonymous> (node:net:339:12)"
+}
+2025-04-25 17:00:03 [ERROR]: MongoDB Connection Error: connection timed out {
+  "connectionGeneration": 0,
+  "stack": "MongoNetworkTimeoutError: connection timed out\n    at connectionFailureError (D:\\sgp1\\backend\\node_modules\\mongodb\\lib\\cmap\\connect.js:369:20)\n    at TLSSocket.<anonymous> (D:\\sgp1\\backend\\node_modules\\mongodb\\lib\\cmap\\connect.js:290:22)\n    at Object.onceWrapper (node:events:633:28)\n    at TLSSocket.emit (node:events:519:28)\n    at Socket._onTimeout (node:net:591:8)\n    at listOnTimeout (node:internal/timers:581:17)\n    at process.processTimers (node:internal/timers:519:7)"
+}
+2025-04-25 17:01:28 [ERROR]: MongoDB Connection Error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/ {
+  "reason": {
+    "type": "ReplicaSetNoPrimary",
+    "servers": {},
+    "stale": false,
+    "compatible": true,
+    "heartbeatFrequencyMS": 10000,
+    "localThresholdMS": 15,
+    "setName": "atlas-1nxwig-shard-0",
+    "maxElectionId": null,
+    "maxSetVersion": null,
+    "commonWireVersion": 0,
+    "logicalSessionTimeoutMinutes": null
+  },
+  "stack": "MongooseServerSelectionError: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/\n    at _handleConnectionErrors (D:\\sgp1\\backend\\node_modules\\mongoose\\lib\\connection.js:816:11)\n    at NativeConnection.openUri (D:\\sgp1\\backend\\node_modules\\mongoose\\lib\\connection.js:791:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"
+}
+2025-04-25 17:02:53 [ERROR]: Email service error: read ECONNRESET {
+  "errno": -4077,
+  "code": "ESOCKET",
+  "syscall": "read",
+  "command": "CONN",
+  "stack": "Error: read ECONNRESET\n    at TLSWrap.onStreamRead (node:internal/stream_base_commons:218:20)"
+}
+2025-04-25 17:29:11 [ERROR]: Failed to send verification email to [object Object]: No recipients defined {
+  "code": "EENVELOPE",
+  "command": "API",
+  "stack": "Error: No recipients defined\n    at SMTPConnection._formatError (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:809:19)\n    at SMTPConnection._setEnvelope (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1047:34)\n    at SMTPConnection.send (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:631:14)\n    at sendMessage (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-transport\\index.js:228:28)\n    at D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-transport\\index.js:286:25\n    at SMTPConnection._actionAUTHComplete (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1602:9)\n    at SMTPConnection.<anonymous> (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:556:26)\n    at SMTPConnection._processResponse (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:993:20)\n    at SMTPConnection._onData (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:774:14)\n    at SMTPConnection._onSocketData (D:\\sgp1\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:195:44)"
+}
+2025-04-25 18:08:57 [ERROR]: Forgot password error: sendPasswordResetEmail is not defined {
+  "stack": "ReferenceError: sendPasswordResetEmail is not defined\n    at forgotPassword (file:///D:/sgp1/backend/controllers/authController.js:422:5)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"
+}
+2025-04-25 18:15:38 [ERROR]: Forgot password error: sendPasswordResetEmail is not defined {
+  "stack": "ReferenceError: sendPasswordResetEmail is not defined\n    at forgotPassword (file:///D:/sgp1/backend/controllers/authController.js:422:5)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"
+}
+2025-04-26 18:45:41 [ERROR]: Google auth error: Wrong number of segments in token: ya29.a0AZYkNZigAyuM8rQrpQdML7M5xLHGBV9XLBwUVj2TvROy7IpS6InYetMX93t9Sw4QGCi5Z4c5KHWlxPLNy5yWO5qlAYUD9GAqcUwNxyOMmJj6dvDBjKolDhc9eYtDhdKJOSY-0wkpkFieqWzdgz4FeN-ljQxtO6H9v67pJlFEaCgYKAYoSARUSFQHGX2MiyFV4gV5Vk9gFmg3YZi7bLA0175 {
+  "stack": "Error: Wrong number of segments in token: ya29.a0AZYkNZigAyuM8rQrpQdML7M5xLHGBV9XLBwUVj2TvROy7IpS6InYetMX93t9Sw4QGCi5Z4c5KHWlxPLNy5yWO5qlAYUD9GAqcUwNxyOMmJj6dvDBjKolDhc9eYtDhdKJOSY-0wkpkFieqWzdgz4FeN-ljQxtO6H9v67pJlFEaCgYKAYoSARUSFQHGX2MiyFV4gV5Vk9gFmg3YZi7bLA0175\n    at OAuth2Client.verifySignedJwtWithCertsAsync (D:\\sgp1\\backend\\node_modules\\google-auth-library\\build\\src\\auth\\oauth2client.js:598:19)\n    at OAuth2Client.verifyIdTokenAsync (D:\\sgp1\\backend\\node_modules\\google-auth-library\\build\\src\\auth\\oauth2client.js:458:34)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async googleAuth (file:///D:/sgp1/backend/controllers/authController.js:489:20)"
+}
+2025-04-27 11:38:14 [ERROR]: Google token exchange error: invalid_request {
+  "response": {
+    "config": {
+      "method": "POST",
+      "url": "https://oauth2.googleapis.com/token",
+      "data": "code=4%2F0Ab_5qlmeRXECYN8Dbvp9HrVgsnVYftkAWGTgTMz6ERNZwAHvWZY9g3RUkEu45W_6aScgcw&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "google-api-nodejs-client/8.9.0",
+        "x-goog-api-client": "gl-node/20.17.0",
+        "Accept": "application/json"
+      },
+      "body": "code=4%2F0Ab_5qlmeRXECYN8Dbvp9HrVgsnVYftkAWGTgTMz6ERNZwAHvWZY9g3RUkEu45W_6aScgcw&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "responseType": "json"
+    },
+    "data": {
+      "error": "invalid_request",
+      "error_description": "client_secret is missing."
+    },
+    "headers": {
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+      "content-encoding": "gzip",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sun, 27 Apr 2025 06:06:58 GMT",
+      "expires": "Mon, 01 Jan 1990 00:00:00 GMT",
+      "pragma": "no-cache",
+      "server": "scaffolding on HTTPServer2",
+      "transfer-encoding": "chunked",
+      "vary": "Origin, X-Origin, Referer",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-xss-protection": "0"
+    },
+    "status": 400,
+    "statusText": "Bad Request",
+    "request": {
+      "responseURL": "https://oauth2.googleapis.com/token"
+    }
+  },
+  "config": {
+    "method": "POST",
+    "url": "https://oauth2.googleapis.com/token",
+    "data": "code=4%2F0Ab_5qlmeRXECYN8Dbvp9HrVgsnVYftkAWGTgTMz6ERNZwAHvWZY9g3RUkEu45W_6aScgcw&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "google-api-nodejs-client/8.9.0",
+      "x-goog-api-client": "gl-node/20.17.0",
+      "Accept": "application/json"
+    },
+    "body": "code=4%2F0Ab_5qlmeRXECYN8Dbvp9HrVgsnVYftkAWGTgTMz6ERNZwAHvWZY9g3RUkEu45W_6aScgcw&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "responseType": "json"
+  },
+  "code": "400",
+  "stack": "Error: invalid_request\n    at Gaxios._request (D:\\sgp1\\backend\\node_modules\\gaxios\\build\\src\\gaxios.js:140:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async OAuth2Client.getTokenAsync (D:\\sgp1\\backend\\node_modules\\google-auth-library\\build\\src\\auth\\oauth2client.js:125:21)\n    at async googleTokenExchange (file:///D:/sgp1/backend/controllers/authController.js:655:24)"
+}
+2025-04-27 11:42:55 [ERROR]: Google token exchange error: invalid_request {
+  "response": {
+    "config": {
+      "method": "POST",
+      "url": "https://oauth2.googleapis.com/token",
+      "data": "code=4%2F0Ab_5qllboRuZ_3mDHmHQ4eYXY5IRbAcaVEM6DWpoKKLiO1DUEZ4x3sAIfDANvj8hI1THNg&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "google-api-nodejs-client/8.9.0",
+        "x-goog-api-client": "gl-node/20.17.0",
+        "Accept": "application/json"
+      },
+      "body": "code=4%2F0Ab_5qllboRuZ_3mDHmHQ4eYXY5IRbAcaVEM6DWpoKKLiO1DUEZ4x3sAIfDANvj8hI1THNg&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "responseType": "json"
+    },
+    "data": {
+      "error": "invalid_request",
+      "error_description": "client_secret is missing."
+    },
+    "headers": {
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+      "content-encoding": "gzip",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sun, 27 Apr 2025 06:11:39 GMT",
+      "expires": "Mon, 01 Jan 1990 00:00:00 GMT",
+      "pragma": "no-cache",
+      "server": "scaffolding on HTTPServer2",
+      "transfer-encoding": "chunked",
+      "vary": "Origin, X-Origin, Referer",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-xss-protection": "0"
+    },
+    "status": 400,
+    "statusText": "Bad Request",
+    "request": {
+      "responseURL": "https://oauth2.googleapis.com/token"
+    }
+  },
+  "config": {
+    "method": "POST",
+    "url": "https://oauth2.googleapis.com/token",
+    "data": "code=4%2F0Ab_5qllboRuZ_3mDHmHQ4eYXY5IRbAcaVEM6DWpoKKLiO1DUEZ4x3sAIfDANvj8hI1THNg&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "google-api-nodejs-client/8.9.0",
+      "x-goog-api-client": "gl-node/20.17.0",
+      "Accept": "application/json"
+    },
+    "body": "code=4%2F0Ab_5qllboRuZ_3mDHmHQ4eYXY5IRbAcaVEM6DWpoKKLiO1DUEZ4x3sAIfDANvj8hI1THNg&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "responseType": "json"
+  },
+  "code": "400",
+  "stack": "Error: invalid_request\n    at Gaxios._request (D:\\sgp1\\backend\\node_modules\\gaxios\\build\\src\\gaxios.js:140:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async OAuth2Client.getTokenAsync (D:\\sgp1\\backend\\node_modules\\google-auth-library\\build\\src\\auth\\oauth2client.js:125:21)\n    at async googleTokenExchange (file:///D:/sgp1/backend/controllers/authController.js:767:24)"
+}
+2025-04-27 11:42:55 [ERROR]: Google API error details: {
+  "status": 400,
+  "data": {
+    "error": "invalid_request",
+    "error_description": "client_secret is missing."
+  }
+}
+2025-04-27 11:43:11 [ERROR]: Google token exchange error: invalid_request {
+  "response": {
+    "config": {
+      "method": "POST",
+      "url": "https://oauth2.googleapis.com/token",
+      "data": "code=4%2F0Ab_5qlkd_x-YqzNyWZyIcEtelvSjmX2JR0mPGPdSgC1rzeYsOGrAs3X8dx_FTKojPjF-kQ&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "google-api-nodejs-client/8.9.0",
+        "x-goog-api-client": "gl-node/20.17.0",
+        "Accept": "application/json"
+      },
+      "body": "code=4%2F0Ab_5qlkd_x-YqzNyWZyIcEtelvSjmX2JR0mPGPdSgC1rzeYsOGrAs3X8dx_FTKojPjF-kQ&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "responseType": "json"
+    },
+    "data": {
+      "error": "invalid_request",
+      "error_description": "client_secret is missing."
+    },
+    "headers": {
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+      "content-encoding": "gzip",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sun, 27 Apr 2025 06:11:55 GMT",
+      "expires": "Mon, 01 Jan 1990 00:00:00 GMT",
+      "pragma": "no-cache",
+      "server": "scaffolding on HTTPServer2",
+      "transfer-encoding": "chunked",
+      "vary": "Origin, X-Origin, Referer",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-xss-protection": "0"
+    },
+    "status": 400,
+    "statusText": "Bad Request",
+    "request": {
+      "responseURL": "https://oauth2.googleapis.com/token"
+    }
+  },
+  "config": {
+    "method": "POST",
+    "url": "https://oauth2.googleapis.com/token",
+    "data": "code=4%2F0Ab_5qlkd_x-YqzNyWZyIcEtelvSjmX2JR0mPGPdSgC1rzeYsOGrAs3X8dx_FTKojPjF-kQ&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "google-api-nodejs-client/8.9.0",
+      "x-goog-api-client": "gl-node/20.17.0",
+      "Accept": "application/json"
+    },
+    "body": "code=4%2F0Ab_5qlkd_x-YqzNyWZyIcEtelvSjmX2JR0mPGPdSgC1rzeYsOGrAs3X8dx_FTKojPjF-kQ&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "responseType": "json"
+  },
+  "code": "400",
+  "stack": "Error: invalid_request\n    at Gaxios._request (D:\\sgp1\\backend\\node_modules\\gaxios\\build\\src\\gaxios.js:140:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async OAuth2Client.getTokenAsync (D:\\sgp1\\backend\\node_modules\\google-auth-library\\build\\src\\auth\\oauth2client.js:125:21)\n    at async googleTokenExchange (file:///D:/sgp1/backend/controllers/authController.js:767:24)"
+}
+2025-04-27 11:43:11 [ERROR]: Google API error details: {
+  "status": 400,
+  "data": {
+    "error": "invalid_request",
+    "error_description": "client_secret is missing."
+  }
+}
+2025-04-27 11:51:16 [ERROR]: Google token exchange error: invalid_request {
+  "response": {
+    "config": {
+      "method": "POST",
+      "url": "https://oauth2.googleapis.com/token",
+      "data": "code=4%2F0Ab_5qlkjCacgc0Px7FbzaMWJOY1d9lcjkjhK-RGofH8Qm6l99siHLIuZpPDAuVUSsrCOKQ&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "google-api-nodejs-client/8.9.0",
+        "x-goog-api-client": "gl-node/20.17.0",
+        "Accept": "application/json"
+      },
+      "body": "code=4%2F0Ab_5qlkjCacgc0Px7FbzaMWJOY1d9lcjkjhK-RGofH8Qm6l99siHLIuZpPDAuVUSsrCOKQ&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "responseType": "json"
+    },
+    "data": {
+      "error": "invalid_request",
+      "error_description": "client_secret is missing."
+    },
+    "headers": {
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+      "content-encoding": "gzip",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sun, 27 Apr 2025 06:20:01 GMT",
+      "expires": "Mon, 01 Jan 1990 00:00:00 GMT",
+      "pragma": "no-cache",
+      "server": "scaffolding on HTTPServer2",
+      "transfer-encoding": "chunked",
+      "vary": "Origin, X-Origin, Referer",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-xss-protection": "0"
+    },
+    "status": 400,
+    "statusText": "Bad Request",
+    "request": {
+      "responseURL": "https://oauth2.googleapis.com/token"
+    }
+  },
+  "config": {
+    "method": "POST",
+    "url": "https://oauth2.googleapis.com/token",
+    "data": "code=4%2F0Ab_5qlkjCacgc0Px7FbzaMWJOY1d9lcjkjhK-RGofH8Qm6l99siHLIuZpPDAuVUSsrCOKQ&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "google-api-nodejs-client/8.9.0",
+      "x-goog-api-client": "gl-node/20.17.0",
+      "Accept": "application/json"
+    },
+    "body": "code=4%2F0Ab_5qlkjCacgc0Px7FbzaMWJOY1d9lcjkjhK-RGofH8Qm6l99siHLIuZpPDAuVUSsrCOKQ&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "responseType": "json"
+  },
+  "code": "400",
+  "stack": "Error: invalid_request\n    at Gaxios._request (D:\\sgp1\\backend\\node_modules\\gaxios\\build\\src\\gaxios.js:140:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async OAuth2Client.getTokenAsync (D:\\sgp1\\backend\\node_modules\\google-auth-library\\build\\src\\auth\\oauth2client.js:125:21)\n    at async googleTokenExchange (file:///D:/sgp1/backend/controllers/authController.js:767:24)"
+}
+2025-04-27 11:51:16 [ERROR]: Google API error details: {
+  "status": 400,
+  "data": {
+    "error": "invalid_request",
+    "error_description": "client_secret is missing."
+  }
+}
+2025-04-27 11:53:51 [ERROR]: Google token exchange error: invalid_request {
+  "response": {
+    "config": {
+      "method": "POST",
+      "url": "https://oauth2.googleapis.com/token",
+      "data": "code=4%2F0Ab_5qlluRaX14MQEkBw_HlY63UJl6dO2kZPu5vKngGZOakF3uldbfCQeoDOb51oXJals-g&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "google-api-nodejs-client/8.9.0",
+        "x-goog-api-client": "gl-node/20.17.0",
+        "Accept": "application/json"
+      },
+      "body": "code=4%2F0Ab_5qlluRaX14MQEkBw_HlY63UJl6dO2kZPu5vKngGZOakF3uldbfCQeoDOb51oXJals-g&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+      "responseType": "json"
+    },
+    "data": {
+      "error": "invalid_request",
+      "error_description": "client_secret is missing."
+    },
+    "headers": {
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+      "content-encoding": "gzip",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sun, 27 Apr 2025 06:22:36 GMT",
+      "expires": "Mon, 01 Jan 1990 00:00:00 GMT",
+      "pragma": "no-cache",
+      "server": "scaffolding on HTTPServer2",
+      "transfer-encoding": "chunked",
+      "vary": "Origin, X-Origin, Referer",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-xss-protection": "0"
+    },
+    "status": 400,
+    "statusText": "Bad Request",
+    "request": {
+      "responseURL": "https://oauth2.googleapis.com/token"
+    }
+  },
+  "config": {
+    "method": "POST",
+    "url": "https://oauth2.googleapis.com/token",
+    "data": "code=4%2F0Ab_5qlluRaX14MQEkBw_HlY63UJl6dO2kZPu5vKngGZOakF3uldbfCQeoDOb51oXJals-g&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "google-api-nodejs-client/8.9.0",
+      "x-goog-api-client": "gl-node/20.17.0",
+      "Accept": "application/json"
+    },
+    "body": "code=4%2F0Ab_5qlluRaX14MQEkBw_HlY63UJl6dO2kZPu5vKngGZOakF3uldbfCQeoDOb51oXJals-g&client_id=903842057627-bkrl6ud9f9ogcejgaaiuoa4rih2eoiba.apps.googleusercontent.com&client_secret=&redirect_uri=http%3A%2F%2Flocalhost%3A5174&grant_type=authorization_code&code_verifier=",
+    "responseType": "json"
+  },
+  "code": "400",
+  "stack": "Error: invalid_request\n    at Gaxios._request (D:\\sgp1\\backend\\node_modules\\gaxios\\build\\src\\gaxios.js:140:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async OAuth2Client.getTokenAsync (D:\\sgp1\\backend\\node_modules\\google-auth-library\\build\\src\\auth\\oauth2client.js:125:21)\n    at async googleTokenExchange (file:///D:/sgp1/backend/controllers/authController.js:767:24)"
+}
+2025-04-27 11:53:51 [ERROR]: Google API error details: {
+  "status": 400,
+  "data": {
+    "error": "invalid_request",
+    "error_description": "client_secret is missing."
+  }
+}

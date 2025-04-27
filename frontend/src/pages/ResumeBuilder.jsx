@@ -3,11 +3,11 @@ import React, { useState, useEffect, setUserData } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { 
-  Download, 
-  Edit, 
-  Loader2, 
-  Monitor, 
+import {
+  Download,
+  Edit,
+  Loader2,
+  Monitor,
   Save,
   User,
   FileText,
@@ -42,15 +42,15 @@ const resumeSchema = z.object({
 // Helper function to convert entries to markdown
 const entriesToMarkdown = (entries, title) => {
   if (!entries || entries.length === 0) return "";
-  
+
   const entriesMarkdown = entries.map(entry => {
-    const dateRange = entry.current 
-      ? `${entry.startDate} - Present` 
+    const dateRange = entry.current
+      ? `${entry.startDate} - Present`
       : `${entry.startDate} - ${entry.endDate}`;
-      
+
     return `### ${entry.title} @ ${entry.organization}\n${dateRange}\n\n${entry.description}`;
   }).join("\n\n");
-  
+
   return `## ${title}\n\n${entriesMarkdown}`;
 };
 
@@ -72,7 +72,7 @@ export default function ResumeBuilder() {
     { name: "Projects", icon: <Code className="h-5 w-5" /> }
   ];
 
-const [userData, setUserData] = useState({ name: '' });
+  const [userData, setUserData] = useState({ name: '' });
 
   const {
     control,
@@ -233,22 +233,20 @@ const [userData, setUserData] = useState({ name: '' });
               <div className="inline-flex rounded-lg border border-cyan-800/50 p-1 bg-zinc-900/80 shadow-inner">
                 <button
                   onClick={() => setActiveTab("edit")}
-                  className={`px-4 py-2 rounded-md ${
-                    activeTab === "edit"
+                  className={`px-4 py-2 rounded-md ${activeTab === "edit"
                       ? "bg-gradient-to-r from-cyan-700 to-cyan-600 text-white shadow-md"
                       : "text-cyan-400 hover:text-cyan-300"
-                  } transition-all`}
+                    } transition-all`}
                 >
                   <Edit className="h-4 w-4 mr-2 inline" />
                   Edit
                 </button>
                 <button
                   onClick={() => setActiveTab("preview")}
-                  className={`px-4 py-2 rounded-md ${
-                    activeTab === "preview"
+                  className={`px-4 py-2 rounded-md ${activeTab === "preview"
                       ? "bg-gradient-to-r from-cyan-700 to-cyan-600 text-white shadow-md"
                       : "text-cyan-400 hover:text-cyan-300"
-                  } transition-all`}
+                    } transition-all`}
                 >
                   <Monitor className="h-4 w-4 mr-2 inline" />
                   Preview
@@ -268,11 +266,10 @@ const [userData, setUserData] = useState({ name: '' });
                         <button
                           key={index}
                           onClick={() => scrollToSection(index)}
-                          className={`w-full flex items-center p-3 rounded-lg transition-all ${
-                            activeSectionIndex === index
+                          className={`w-full flex items-center p-3 rounded-lg transition-all ${activeSectionIndex === index
                               ? "bg-gradient-to-r from-cyan-800/30 to-cyan-900/30 text-cyan-300 border-l-4 border-cyan-500"
                               : "text-cyan-100 hover:bg-zinc-800"
-                          }`}
+                            }`}
                         >
                           <span className="inline-block mr-3">{section.icon}</span>
                           <span>{section.name}</span>
@@ -295,67 +292,67 @@ const [userData, setUserData] = useState({ name: '' });
                 <div className="flex-grow space-y-8">
                   {/* Contact Information */}
                   {/* Contact Information */}
-<div id="section-0" className="space-y-4 bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-cyan-800/30 shadow-lg">
-  <h3 className="text-xl font-medium text-cyan-300 border-b border-cyan-900/30 pb-2 flex items-center">
-    <User className="h-5 w-5 mr-2 text-cyan-400" />
-    Contact Information
-  </h3>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div className="space-y-2 md:col-span-2">
-      <label className="text-sm text-cyan-400 font-medium">Full Name</label>
-      <input
-        type="text"
-        placeholder="Your Full Name"
-        value={userData.name}
-        onChange={(e) => {
-          const newUserData = { ...userData, name: e.target.value };
-          setUserData(newUserData);
-        }}
-        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
-      />
-    </div>
-    <div className="space-y-2">
-      <label className="text-sm text-cyan-400 font-medium">Email</label>
-      <input
-        type="email"
-        placeholder="Email"
-        {...register("contactInfo.email")}
-        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
-      />
-      {errors.contactInfo?.email && (
-        <p className="text-sm text-red-500">{errors.contactInfo.email.message}</p>
-      )}
-    </div>
-    <div className="space-y-2">
-      <label className="text-sm text-cyan-400 font-medium">Mobile</label>
-      <input
-        type="text"
-        placeholder="Mobile"
-        {...register("contactInfo.mobile")}
-        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
-      />
-    </div>
-    <div className="space-y-2">
-      <label className="text-sm text-cyan-400 font-medium">LinkedIn</label>
-      <input
-        type="url"
-        placeholder="LinkedIn URL"
-        {...register("contactInfo.linkedin")}
-        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
-      />
-    </div>
-    <div className="space-y-2">
-      <label className="text-sm text-cyan-400 font-medium">GitHub</label>
-      <input
-        type="url"
-        placeholder="GitHub URL"
-        {...register("contactInfo.github")}
-        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
-      />
-    </div>
-  </div>
-</div>
-  
+                  <div id="section-0" className="space-y-4 bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-cyan-800/30 shadow-lg">
+                    <h3 className="text-xl font-medium text-cyan-300 border-b border-cyan-900/30 pb-2 flex items-center">
+                      <User className="h-5 w-5 mr-2 text-cyan-400" />
+                      Contact Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-sm text-cyan-400 font-medium">Full Name</label>
+                        <input
+                          type="text"
+                          placeholder="Your Full Name"
+                          value={userData.name}
+                          onChange={(e) => {
+                            const newUserData = { ...userData, name: e.target.value };
+                            setUserData(newUserData);
+                          }}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-cyan-400 font-medium">Email</label>
+                        <input
+                          type="email"
+                          placeholder="Email"
+                          {...register("contactInfo.email")}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
+                        />
+                        {errors.contactInfo?.email && (
+                          <p className="text-sm text-red-500">{errors.contactInfo.email.message}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-cyan-400 font-medium">Mobile</label>
+                        <input
+                          type="text"
+                          placeholder="Mobile"
+                          {...register("contactInfo.mobile")}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-cyan-400 font-medium">LinkedIn</label>
+                        <input
+                          type="url"
+                          placeholder="LinkedIn URL"
+                          {...register("contactInfo.linkedin")}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-cyan-400 font-medium">GitHub</label>
+                        <input
+                          type="url"
+                          placeholder="GitHub URL"
+                          {...register("contactInfo.github")}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Summary */}
                   <div id="section-1" className="space-y-4 bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-cyan-800/30 shadow-lg">
                     <h3 className="text-xl font-medium text-cyan-300 border-b border-cyan-900/30 pb-2 flex items-center">
@@ -372,7 +369,7 @@ const [userData, setUserData] = useState({ name: '' });
                       ></textarea>
                     </div>
                   </div>
-  
+
                   {/* Skills */}
                   <div id="section-2" className="space-y-4 bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-cyan-800/30 shadow-lg">
                     <h3 className="text-xl font-medium text-cyan-300 border-b border-cyan-900/30 pb-2 flex items-center">
@@ -389,7 +386,7 @@ const [userData, setUserData] = useState({ name: '' });
                       ></textarea>
                     </div>
                   </div>
-  
+
                   {/* Experience */}
                   <div id="section-3" className="space-y-4 bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-cyan-800/30 shadow-lg">
                     <h3 className="text-xl font-medium text-cyan-300 border-b border-cyan-900/30 pb-2 flex items-center">
@@ -400,9 +397,9 @@ const [userData, setUserData] = useState({ name: '' });
                       name="experience"
                       control={control}
                       render={({ field }) => (
-                        <ResumeForm 
-                          entries={field.value} 
-                          onChange={field.onChange} 
+                        <ResumeForm
+                          entries={field.value}
+                          onChange={field.onChange}
                           defaultEntry={{
                             title: "",
                             organization: "",
@@ -416,7 +413,7 @@ const [userData, setUserData] = useState({ name: '' });
                       )}
                     />
                   </div>
-  
+
                   {/* Education */}
                   <div id="section-4" className="space-y-4 bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-cyan-800/30 shadow-lg">
                     <h3 className="text-xl font-medium text-cyan-300 border-b border-cyan-900/30 pb-2 flex items-center">
@@ -427,9 +424,9 @@ const [userData, setUserData] = useState({ name: '' });
                       name="education"
                       control={control}
                       render={({ field }) => (
-                        <ResumeForm 
-                          entries={field.value} 
-                          onChange={field.onChange} 
+                        <ResumeForm
+                          entries={field.value}
+                          onChange={field.onChange}
                           defaultEntry={{
                             title: "",
                             organization: "",
@@ -443,7 +440,7 @@ const [userData, setUserData] = useState({ name: '' });
                       )}
                     />
                   </div>
-  
+
                   {/* Projects */}
                   <div id="section-5" className="space-y-4 bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-cyan-800/30 shadow-lg">
                     <h3 className="text-xl font-medium text-cyan-300 border-b border-cyan-900/30 pb-2 flex items-center">
@@ -454,9 +451,9 @@ const [userData, setUserData] = useState({ name: '' });
                       name="projects"
                       control={control}
                       render={({ field }) => (
-                        <ResumeForm 
-                          entries={field.value} 
-                          onChange={field.onChange} 
+                        <ResumeForm
+                          entries={field.value}
+                          onChange={field.onChange}
                           defaultEntry={{
                             title: "",
                             organization: "",
@@ -473,71 +470,71 @@ const [userData, setUserData] = useState({ name: '' });
                 </div>
               </div>
             )}
-  
+
             {/* Preview Mode */}
-            
+
             {activeTab === "preview" && (
-            <div className="space-y-4">
+              <div className="space-y-4">
                 {/* New integration: MDEditor toggle and warning */}
                 <button
-                className="mb-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-800 to-cyan-700 hover:from-cyan-700 hover:to-cyan-600 text-white transition-colors shadow-md flex items-center gap-2"
-                onClick={() => setResumeMode(resumeMode === "preview" ? "edit" : "preview")}
+                  className="mb-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-800 to-cyan-700 hover:from-cyan-700 hover:to-cyan-600 text-white transition-colors shadow-md flex items-center gap-2"
+                  onClick={() => setResumeMode(resumeMode === "preview" ? "edit" : "preview")}
                 >
-                {resumeMode === "preview" ? (
+                  {resumeMode === "preview" ? (
                     <>
-                    <Edit className="h-4 w-4" />
-                    Edit Resume
+                      <Edit className="h-4 w-4" />
+                      Edit Resume
                     </>
-                ) : (
+                  ) : (
                     <>
-                    <Monitor className="h-4 w-4" />
-                    Show Preview
+                      <Monitor className="h-4 w-4" />
+                      Show Preview
                     </>
-                )}
+                  )}
                 </button>
-                
+
                 {resumeMode !== "preview" && (
-                <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
+                  <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
                     <AlertTriangle className="h-5 w-5" />
                     <span className="text-sm">
-                    You will lose edited markdown if you update the form data.
+                      You will lose edited markdown if you update the form data.
                     </span>
-                </div>
+                  </div>
                 )}
-                
+
                 {/* MDEditor integration with white background and black text */}
                 <div className="border rounded-lg">
-                <MDEditor
+                  <MDEditor
                     value={previewContent}
                     onChange={setPreviewContent}
                     height={800}
                     preview={resumeMode}
                     previewOptions={{
-                    className: "bg-white text-black w-full h-full",
-                    style: {
+                      className: "bg-white text-black w-full h-full",
+                      style: {
                         backgroundColor: "white",
                         color: "black",
                         padding: "20px"
-                    }
+                      }
                     }}
                     visibleDragbar={false}
                     style={{ backgroundColor: resumeMode === "preview" ? "white" : undefined }}
-                />
+                  />
                 </div>
-                
+
                 {/* Hidden div for PDF generation */}
                 <div className="hidden">
-                <div id="resume-pdf">
+                  <div id="resume-pdf">
                     <MDEditor.Markdown
-                    source={previewContent}
-                    style={{
+                      source={previewContent}
+                      style={{
                         background: "white",
                         color: "black",
-                    }}
+                      }}
                     />
+                  </div>
                 </div>
-                </div>
-            </div>
+              </div>
             )}
           </div>
         </div>
