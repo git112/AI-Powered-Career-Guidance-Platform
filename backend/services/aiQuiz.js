@@ -47,8 +47,7 @@ async function generateQuiz(category, subIndustry) {
 // Save quiz results
 async function saveQuizResult(questions, answers, score) {
   try {
-    // In a real app, you would get the user from authentication
-    // For this example, we'll use a mock user
+   
     const user = {
       id: "user123",
       industry: "Technology",
@@ -93,8 +92,6 @@ async function saveQuizResult(questions, answers, score) {
       }
     }
 
-    // In a real app, you would save this to your database
-    // For this example, we'll just return the result
     const assessment = {
       userId: user.id,
       quizScore: score,
@@ -114,8 +111,7 @@ async function saveQuizResult(questions, answers, score) {
 // Get assessment history
 async function getAssessments() {
   try {
-    // In a real app, you would get the user from authentication
-    // For this example, we'll return mock data
+    
     return [
       {
         id: "assessment1",

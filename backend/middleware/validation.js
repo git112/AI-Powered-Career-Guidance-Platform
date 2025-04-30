@@ -1,4 +1,3 @@
-// middleware/validation.js
 import { check, body, param, validationResult } from 'express-validator';
 
 // Register validation

@@ -1,25 +1,3 @@
-// import ActionCard from './ActionCard';
-
-// const NextActionsSection = ({ nextActions }) => {
-//   if (!nextActions || nextActions.length === 0) {
-//     return null;
-//   }
-
-//   return (
-//     <div className="bg-zinc-800/50 p-6 rounded-xl border border-zinc-700 mt-6">
-//       <h3 className="text-lg font-medium text-cyan-50 mb-4">Recommended Next Actions</h3>
-//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-//         {nextActions.map((action, index) => (
-//           <ActionCard key={index} action={action} />
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default NextActionsSection;
-
-
 import React from 'react';
 import { FaCheck, FaBell } from 'react-icons/fa';
 

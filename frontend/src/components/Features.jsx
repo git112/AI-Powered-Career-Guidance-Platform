@@ -31,9 +31,9 @@ const Features = () => {
     },
     {
       icon: <Trophy className="h-10 w-10 text-cyan-400" />,
-      title: "Salary Negotiation",
-      description: "Get personalized salary ranges and negotiation tips for your target roles."
-    }
+    title:"Get Your Personalized Career Roadmap",
+    description:"Let AI guide your journey — assess your skills, fix your gaps, build your resume, all in one smart plan."
+    },
   ];
 
   return (

@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckCircle } from "lucide-react";
+import { number } from "zod";
 
 const steps = [
   {
@@ -34,9 +35,9 @@ const steps = [
   },
   {
     number: "6",
-    title: "Negotiate Like a Pro with AI Coaching",
+    title: "Unlock Your Complete Career Toolkit",
     description:
-      "Get personalized salary ranges and practice negotiation tips.",
+      "Access your personalized competency scores, discover skill gaps, get AI-powered job recommendations, and build a top-tier resume — all in one place.",
   },
   {
     number: "7",
