@@ -1,21 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/axios';
-import { 
-  Factory, 
-  GraduationCap, 
-  Briefcase, 
-  Code, 
+import {
+  Factory,
+  Briefcase,
+  Code,
   User,
   Building,
   DollarSign,
-  Target
+  RefreshCw
 } from 'lucide-react';
 
 const ProfileEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [insightsLoading, setInsightsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
   const [formData, setFormData] = useState({
     industry: '',
     subIndustry: '',
@@ -23,6 +24,8 @@ const ProfileEdit = () => {
     skills: [],
     bio: '',
     location: '',
+    zipCode: '',
+    country: '',
     preferredRoles: [],
     salaryExpectation: '',
     competencyScore: 0
@@ -38,12 +41,12 @@ const ProfileEdit = () => {
           navigate('/auth');
           return;
         }
-        
+
         // Use the correct API path with /api prefix
         const response = await api.get('/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         console.log('Profile data loaded:', response.data);
         setFormData(response.data);
         setLoading(false);
@@ -57,13 +60,51 @@ const ProfileEdit = () => {
     fetchProfile();
   }, [navigate]);
 
+  // For development/debugging - clear cached insights when component mounts
+  useEffect(() => {
+    // Clear any cached insights data from localStorage or sessionStorage
+    try {
+      // Remove any cached insights from local storage
+      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+      if (userData.insights) {
+        delete userData.insights;
+        localStorage.setItem('userData', JSON.stringify(userData));
+      }
+
+      // You might also want to clear any insights data in sessionStorage if used
+      if (sessionStorage.getItem('industryInsights')) {
+        sessionStorage.removeItem('industryInsights');
+      }
+    } catch (e) {
+      console.error('Error clearing cached insights:', e);
+    }
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+
+    // Update form data with the new value
+    setFormData(prev => {
+      // Create updated form data with the new field value
+      const updated = {
+        ...prev,
+        [name]: value
+      };
+
+      // If changing industry, also reset subIndustry to prevent invalid combinations
+      if (name === 'industry') {
+        updated.subIndustry = '';
+      }
+
+      // No longer generating insights automatically when fields change
+      // Insights will only be generated when the user clicks "Save Changes"
+
+      return updated;
+    });
   };
+
+  // We've removed the separate generateInsights function since we now only generate insights
+  // when the user clicks "Save Changes" in the handleSubmit function
 
   const handleSkillsChange = (e) => {
     const skills = e.target.value.split(',').map(skill => skill.trim());
@@ -73,46 +114,85 @@ const ProfileEdit = () => {
     }));
   };
 
+  const handlePreferredRolesChange = (e) => {
+    const preferredRoles = e.target.value.split(',').map(role => role.trim());
+    setFormData(prev => ({
+      ...prev,
+      preferredRoles
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
+      setError(null);
+      setSuccess('');
       const token = localStorage.getItem('token');
-      
-      // Use the correct API path with /api prefix
+
+      // First, update the user profile
       const profileResponse = await api.put('/api/users/profile', formData, {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       console.log('Profile updated successfully:', profileResponse.data);
-      
-      // After updating profile, generate new insights
-      const insightResponse = await api.post('/api/industry-insights/generate', {
+
+      // Show success message
+      setSuccess('Profile updated successfully! Generating new insights...');
+
+      // Force timestamp to prevent caching
+      const timestamp = new Date().getTime();
+
+      // After updating profile, generate new insights with all relevant profile data
+      setInsightsLoading(true);
+      const insightResponse = await api.post(`/api/industry-insights/generate?t=${timestamp}`, {
         industry: formData.subIndustry || formData.industry,
-        experience: parseInt(formData.experience),
-        skills: formData.skills
+        subIndustry: formData.subIndustry,  // Explicitly include subIndustry
+        experience: parseInt(formData.experience) || 0,
+        skills: formData.skills,
+        zipCode: formData.zipCode,
+        location: formData.location,
+        country: formData.country,
+        salaryExpectation: formData.salaryExpectation,
+        preferredRoles: formData.preferredRoles,
+        isIndianData: formData.country.toLowerCase().includes('india'),
+        forceRefresh: true  // Add a flag for the backend to force refresh
       }, {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       console.log('New insights generated:', insightResponse.data);
-      
-      // Update local storage with new user data
-      localStorage.setItem('userData', JSON.stringify(profileResponse.data));
-      
+
+      // Update local storage with new user data and timestamp
+      const updatedUserData = {
+        ...profileResponse.data,
+        lastInsightsUpdate: timestamp
+      };
+      localStorage.setItem('userData', JSON.stringify(updatedUserData));
+
+      // Store the fresh insights in session storage
+      sessionStorage.setItem('industryInsights', JSON.stringify({
+        data: insightResponse.data,
+        timestamp: timestamp,
+        industry: formData.industry,
+        subIndustry: formData.subIndustry
+      }));
+
       // Navigate back to insights page
       navigate('/dashboard/industry-insights');
     } catch (error) {
       console.error('Error updating profile:', error);
       setError('Failed to update profile. Please try again.');
+      setSuccess('');
     } finally {
       setLoading(false);
+      setInsightsLoading(false);
     }
   };
 
@@ -128,7 +208,7 @@ const ProfileEdit = () => {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-zinc-900 p-4">
         <div className="text-red-400 text-xl mb-4">{error}</div>
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="bg-cyan-600 hover:bg-cyan-700 text-white py-2 px-4 rounded-lg"
         >
@@ -139,11 +219,21 @@ const ProfileEdit = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 pt-20
-    ">
+    <div className="container mx-auto py-8 px-4 pt-20">
+      {insightsLoading && (
+        <div className="fixed top-20 right-4 bg-cyan-900/90 text-cyan-100 px-4 py-2 rounded-lg shadow-lg flex items-center z-50">
+          <RefreshCw className="animate-spin mr-2 h-5 w-5" />
+          <span>Generating new industry insights...</span>
+        </div>
+      )}
+      {success && (
+        <div className="fixed top-20 right-4 bg-green-900/90 text-green-100 px-4 py-2 rounded-lg shadow-lg flex items-center z-50">
+          <span>{success}</span>
+        </div>
+      )}
       <div className="max-w-2xl mx-auto bg-zinc-800/50 p-6 rounded-xl border border-cyan-400">
         <h2 className="text-2xl font-bold text-cyan-50 mb-6">Edit Your Profile</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-cyan-100 mb-2 flex items-center">
@@ -165,7 +255,7 @@ const ProfileEdit = () => {
               <option value="Manufacturing">Manufacturing</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-cyan-100 mb-2 flex items-center">
               <Building className="mr-2 h-5 w-5" />
@@ -181,11 +271,50 @@ const ProfileEdit = () => {
               {formData.industry === 'Technology' && (
                 <>
                   <option value="Software Development">Software Development</option>
+                  <option value="Web Development">Web Development</option>
+                  <option value="Mobile App Development">Mobile App Development</option>
+                  <option value="Game Development">Game Development</option>
+                  <option value="Embedded Systems Development">Embedded Systems Development</option>
+                  <option value="API Development">API Development</option>
+                  <option value="DevOps Engineering">DevOps Engineering</option>
+                  <option value="Backend Development">Backend Development</option>
+                  <option value="Frontend Development">Frontend Development</option>
+                  <option value="Full Stack Development">Full Stack Development</option>
                   <option value="Data Science">Data Science</option>
+                  <option value="Data Engineering">Data Engineering</option>
+                  <option value="Big Data">Big Data</option>
+                  <option value="Business Intelligence (BI)">Business Intelligence (BI)</option>
+                  <option value="Artificial Intelligence (AI)">Artificial Intelligence (AI)</option>
+                  <option value="Machine Learning (ML)">Machine Learning (ML)</option>
+                  <option value="Deep Learning">Deep Learning</option>
+                  <option value="Natural Language Processing (NLP)">Natural Language Processing (NLP)</option>
+                  <option value="Computer Vision">Computer Vision</option>
+                  <option value="Data Analytics">Data Analytics</option>
+
                   <option value="Cybersecurity">Cybersecurity</option>
                   <option value="Cloud Computing">Cloud Computing</option>
+                  <option value="UI/UX Design">UI/UX Design</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Product Management">Product Management</option>
+                  <option value="Technical Program Management">Technical Program Management</option>
+                  <option value="Project Management (IT)">Project Management (IT)</option>
+                  <option value="Technology Consulting">Technology Consulting</option>
+                  <option value="Tech Strategy & Innovation">Tech Strategy & Innovation</option>
+                  <option value="Digital Transformation">Digital Transformation</option>
+                  <option value="IT Support">IT Support</option>
+                  <option value="Managed Services">Managed Services</option>
+                  <option value="Technical Support">Technical Support</option>
+                  <option value="IT Service Management (ITSM)">IT Service Management (ITSM)</option>
+                  <option value="Help Desk Support">Help Desk Support</option>
+                  <option value="Database Administration">Database Administration</option>
+                  <option value="Data Warehousing">Data Warehousing</option>
+
+
+                  <option value="Digital Marketing">Digital Marketing</option>
                 </>
               )}
+
+
               {formData.industry === 'Finance' && (
                 <>
                   <option value="Banking">Banking</option>
@@ -195,7 +324,7 @@ const ProfileEdit = () => {
               )}
             </select>
           </div>
-          
+
           <div>
             <label className="block text-cyan-100 mb-2 flex items-center">
               <Briefcase className="mr-2 h-5 w-5" />
@@ -212,7 +341,7 @@ const ProfileEdit = () => {
               max="50"
             />
           </div>
-          
+
           <div>
             <label className="block text-cyan-100 mb-2 flex items-center">
               <Code className="mr-2 h-5 w-5" />
@@ -227,7 +356,7 @@ const ProfileEdit = () => {
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-cyan-100 mb-2 flex items-center">
               <User className="mr-2 h-5 w-5" />
@@ -241,7 +370,7 @@ const ProfileEdit = () => {
               rows="4"
             ></textarea>
           </div>
-          
+
           <div>
             <label className="block text-cyan-100 mb-2 flex items-center">
               <Building className="mr-2 h-5 w-5" />
@@ -253,9 +382,43 @@ const ProfileEdit = () => {
               value={formData.location}
               onChange={handleChange}
               className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
+              placeholder="City, State"
             />
           </div>
-          
+
+          <div>
+            <label className="block text-cyan-100 mb-2 flex items-center">
+              <Building className="mr-2 h-5 w-5" />
+              Zip Code
+            </label>
+            <input
+              type="text"
+              name="zipCode"
+              value={formData.zipCode}
+              onChange={handleChange}
+              className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
+              placeholder="Enter your zip/postal code"
+            />
+            <p className="text-xs text-cyan-300/70 mt-1">
+              For Indian locations, use 6-digit postal code (e.g., 110001)
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-cyan-100 mb-2 flex items-center">
+              <Building className="mr-2 h-5 w-5" />
+              Country
+            </label>
+            <input
+              type="text"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
+              placeholder="e.g. United States, India, Canada"
+            />
+          </div>
+
           <div>
             <label className="block text-cyan-100 mb-2 flex items-center">
               <DollarSign className="mr-2 h-5 w-5" />
@@ -269,7 +432,22 @@ const ProfileEdit = () => {
               className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
             />
           </div>
-          
+
+          <div>
+            <label className="block text-cyan-100 mb-2 flex items-center">
+              <Briefcase className="mr-2 h-5 w-5" />
+              Preferred Roles (comma separated)
+            </label>
+            <input
+              type="text"
+              name="preferredRoles"
+              value={Array.isArray(formData.preferredRoles) ? formData.preferredRoles.join(', ') : formData.preferredRoles}
+              onChange={handlePreferredRolesChange}
+              className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
+              placeholder="e.g. Software Engineer, Full Stack Developer"
+            />
+          </div>
+
           <div className="flex justify-end space-x-4">
             <button
               type="button"

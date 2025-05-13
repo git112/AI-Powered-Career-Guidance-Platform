@@ -3,24 +3,71 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/axios';
-import { FaIndustry, FaGraduationCap, FaBriefcase, FaCode, FaUser } from 'react-icons/fa';
+import { FaIndustry, FaGraduationCap, FaBriefcase, FaCode, FaUser, FaMapMarkerAlt, FaDollarSign } from 'react-icons/fa';
 
 const industries = [
   {
-    id: 'tech',
-    name: 'Technology',
-    subIndustries: [
-      'Software Development',
-      'Data Science',
-      'Cybersecurity',
-      'Cloud Computing',
-      'Web Development',
-      'Mobile Development',
-      'Game Development',
-      'UI/UX Design',
-    ],
-    // Add more industries and sub-industries as needed
-  },
+
+  id: 'tech',
+  name: 'Technology',
+  subIndustries: [
+    // Core Development
+    'Software Development',
+    'Web Development',
+    'Mobile App Development',
+    'Game Development',
+    'Embedded Systems Development',
+    'API Development',
+    'DevOps Engineering',
+    'Backend Development',
+    'Frontend Development',
+    'Full Stack Development',
+
+    // Data & Intelligence
+    'Data Science',
+    'Data Engineering',
+    'Big Data',
+    'Business Intelligence (BI)',
+    'Artificial Intelligence (AI)',
+    'Machine Learning (ML)',
+    'Deep Learning',
+    'Natural Language Processing (NLP)',
+    'Computer Vision',
+    'Data Analytics',
+
+    'Cybersecurity',
+    'Cloud Computing',
+
+    'UI/UX Design',
+    'Product Design',
+
+
+    'Product Management',
+    'Technical Program Management',
+    'Project Management (IT)',
+    'Technology Consulting',
+    'Tech Strategy & Innovation',
+    'Digital Transformation',
+
+    // IT Services & Support
+    'IT Support',
+    'Managed Services',
+    'Technical Support',
+    'IT Service Management (ITSM)',
+    'Help Desk Support',
+
+    // Databases & Storage
+    'Database Administration',
+    'Data Warehousing',
+    'Cloud Storage',
+    'NoSQL & SQL Technologies',
+
+    'Online Tech Education',
+    'Bootcamps & Certifications',
+    'Open Source Development',
+    'Community & Developer Advocacy'
+  ]
+},
   {
     id: 'finance',
     name: 'Finance',
@@ -49,6 +96,10 @@ const OnboardingForm = () => {
     bio: '',
     profilePicture: '',
     authProvider: 'local',
+    location: '',
+    zipCode: '',
+    country: '',
+    salaryExpectation: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -64,7 +115,7 @@ const OnboardingForm = () => {
   const handleFormCompletion = async () => {
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -74,23 +125,29 @@ const OnboardingForm = () => {
       }
 
       // Prepare the profile data
+      const skillsArray = typeof formData.skills === 'string'
+        ? formData.skills.split(',').map(s => s.trim()).filter(s => s)
+        : (Array.isArray(formData.skills) ? formData.skills : []);
+
       const profileData = {
         industry: formData.industry,
         subIndustry: formData.subIndustry,
         experience: parseInt(formData.experience),
-        skills: typeof formData.skills === 'string' 
-          ? formData.skills.split(',').map(s => s.trim()).filter(s => s) 
-          : (Array.isArray(formData.skills) ? formData.skills : []),
+        skills: skillsArray,
         bio: formData.bio,
         authProvider: formData.authProvider,
-        profilePicture: formData.profilePicture
+        profilePicture: formData.profilePicture,
+        location: formData.location,
+        zipCode: formData.zipCode,
+        country: formData.country,
+        salaryExpectation: formData.salaryExpectation
       };
 
       console.log('Sending profile data:', profileData);
 
       // Update user profile - use the correct API path with /api prefix
       const profileResponse = await api.put('/api/users/profile', profileData, {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
@@ -103,9 +160,14 @@ const OnboardingForm = () => {
         const insightResponse = await api.post('/api/industry-insights/generate', {
           industry: profileData.subIndustry || profileData.industry,
           experience: parseInt(profileData.experience),
-          skills: profileData.skills
+          skills: profileData.skills,
+          zipCode: profileData.zipCode,
+          location: profileData.location,
+          country: profileData.country,
+          salaryExpectation: profileData.salaryExpectation,
+          isIndianData: profileData.country.toLowerCase().includes('india')
         }, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
@@ -141,9 +203,13 @@ const OnboardingForm = () => {
       setError('Please enter at least one skill');
       return;
     }
-    
+    if (step === 3 && !formData.country) {
+      setError('Please enter your country');
+      return;
+    }
+
     setError(null);
-    if (step < 3) {
+    if (step < 4) {
       setStep(step + 1);
     } else {
       handleFormCompletion();
@@ -162,8 +228,9 @@ const OnboardingForm = () => {
         return (
           <div className="space-y-4">
             <div>
-              <label className="block text-cyan-100 mb-2">Select Your Industry</label>
+              <label htmlFor="industry" className="block text-cyan-100 mb-2">Select Your Industry</label>
               <select
+                id="industry"
                 name="industry"
                 value={formData.industry}
                 onChange={handleChange}
@@ -177,11 +244,12 @@ const OnboardingForm = () => {
                 ))}
               </select>
             </div>
-            
+
             {formData.industry && (
               <div>
-                <label className="block text-cyan-100 mb-2">Select Sub-Industry</label>
+                <label htmlFor="subIndustry" className="block text-cyan-100 mb-2">Select Sub-Industry</label>
                 <select
+                  id="subIndustry"
                   name="subIndustry"
                   value={formData.subIndustry}
                   onChange={handleChange}
@@ -202,25 +270,48 @@ const OnboardingForm = () => {
         );
       case 1:
         return (
-          <div>
-            <label className="block text-cyan-100 mb-2">Years of Experience</label>
-            <input
-              type="number"
-              name="experience"
-              value={formData.experience}
-              onChange={handleChange}
-              min="0"
-              max="50"
-              placeholder="Years of experience"
-              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
-            />
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="experience" className="block text-cyan-100 mb-2">Years of Experience</label>
+              <input
+                id="experience"
+                type="number"
+                name="experience"
+                value={formData.experience}
+                onChange={handleChange}
+                min="0"
+                max="50"
+                placeholder="Years of experience"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="salaryExpectation" className="block text-cyan-100 mb-2 flex items-center">
+                <FaDollarSign className="mr-2" />
+                Salary Expectation
+              </label>
+              <input
+                id="salaryExpectation"
+                type="text"
+                name="salaryExpectation"
+                value={formData.salaryExpectation}
+                onChange={handleChange}
+                placeholder="e.g. 75000"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
+              />
+              <p className="text-xs text-cyan-300/70 mt-1">
+                Enter your expected annual salary in USD
+              </p>
+            </div>
           </div>
         );
       case 2:
         return (
           <div>
-            <label className="block text-cyan-100 mb-2">Your Skills (comma separated)</label>
+            <label htmlFor="skills" className="block text-cyan-100 mb-2">Your Skills (comma separated)</label>
             <textarea
+              id="skills"
               name="skills"
               value={formData.skills}
               onChange={handleChange}
@@ -231,9 +322,58 @@ const OnboardingForm = () => {
         );
       case 3:
         return (
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="country" className="block text-cyan-100 mb-2">Country</label>
+              <input
+                id="country"
+                type="text"
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+                placeholder="e.g. United States, India, Canada"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="location" className="block text-cyan-100 mb-2">City/State</label>
+              <input
+                id="location"
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="e.g. New York, NY"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="zipCode" className="block text-cyan-100 mb-2">Zip/Postal Code</label>
+              <input
+                id="zipCode"
+                type="text"
+                name="zipCode"
+                value={formData.zipCode}
+                onChange={handleChange}
+                placeholder={formData.country.toLowerCase().includes('india') ? "e.g. 110001" : "e.g. 10001"}
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
+              />
+              {formData.country.toLowerCase().includes('india') && (
+                <p className="text-xs text-cyan-300/70 mt-1">
+                  For Indian locations, use 6-digit postal code
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      case 4:
+        return (
           <div>
-            <label className="block text-cyan-100 mb-2">Professional Bio (optional)</label>
+            <label htmlFor="bio" className="block text-cyan-100 mb-2">Professional Bio (optional)</label>
             <textarea
+              id="bio"
               name="bio"
               value={formData.bio}
               onChange={handleChange}
@@ -256,6 +396,8 @@ const OnboardingForm = () => {
       case 2:
         return <FaCode className="text-4xl text-cyan-400" />;
       case 3:
+        return <FaMapMarkerAlt className="text-4xl text-cyan-400" />;
+      case 4:
         return <FaUser className="text-4xl text-cyan-400" />;
       default:
         return null;
@@ -271,6 +413,8 @@ const OnboardingForm = () => {
       case 2:
         return "Your Skills";
       case 3:
+        return "Your Location";
+      case 4:
         return "About You";
       default:
         return "";
@@ -284,7 +428,7 @@ const OnboardingForm = () => {
           {getStepIcon()}
           <h1 className="text-2xl font-bold text-cyan-100 mt-4">{getStepTitle()}</h1>
           <div className="flex justify-center w-full mt-4">
-            {[0, 1, 2, 3].map(i => (
+            {[0, 1, 2, 3, 4].map(i => (
               <div
                 key={i}
                 className={`h-2 w-full mx-1 rounded-full ${
@@ -328,7 +472,7 @@ const OnboardingForm = () => {
                 </svg>
                 Processing...
               </>
-            ) : step === 3 ? (
+            ) : step === 4 ? (
               'Complete'
             ) : (
               'Next'

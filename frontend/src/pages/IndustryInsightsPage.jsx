@@ -3,8 +3,6 @@ import {
   FaChartBar,
   FaInfoCircle,
   FaCheck,
-  FaBell,
-  FaSearch,
   FaBullhorn,
   FaRocket,
   FaFire,
@@ -13,7 +11,9 @@ import {
   FaLightbulb,
   FaBriefcase,
   FaGraduationCap,
-  FaChartLine
+  FaChartLine,
+  FaMapMarkerAlt,
+  FaSync as RefreshCw
 } from "react-icons/fa";
 import SalaryRangesChart from "../components/charts/SalaryRanges";
 import SkillsVsMarketChart from "../components/charts/skillVsmarket";
@@ -59,7 +59,96 @@ function IndustryInsightsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showWelcomeBack, setShowWelcomeBack] = useState(false);
+  const [zipCode, setZipCode] = useState("");
+  const [isFilteringByLocation, setIsFilteringByLocation] = useState(false);
   const navigate = useNavigate();
+
+  // Function to fetch insights data
+  const fetchInsights = async (zipCodeParam = "", forceRefresh = false) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+
+      // Get industry insights with optional zipCode parameter
+      const params = {};
+      if (zipCodeParam) {
+        params.zipCode = zipCodeParam;
+        setIsFilteringByLocation(true);
+      } else {
+        // When no zipCode is provided, the backend will use the user's profile location
+        setIsFilteringByLocation(false);
+      }
+
+      // Only regenerate insights if forceRefresh is true
+      if (forceRefresh) {
+        try {
+          // Get user profile data to use for regenerating insights
+          const userRes = await api.get("/api/users/profile", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          // Generate new insights with the latest profile data
+          await api.post('/api/industry-insights/generate', {
+            industry: userRes.data.subIndustry || userRes.data.industry,
+            experience: parseInt(userRes.data.experience),
+            skills: userRes.data.skills,
+            zipCode: userRes.data.zipCode,
+            location: userRes.data.location,
+            country: userRes.data.country,
+            salaryExpectation: userRes.data.salaryExpectation,
+            preferredRoles: userRes.data.preferredRoles,
+            isIndianData: userRes.data.country.toLowerCase().includes('india'),
+            forceRefresh: true
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          console.log("Insights regenerated with latest profile data");
+        } catch (regenerateErr) {
+          console.error("Error regenerating insights:", regenerateErr);
+          // Continue to fetch existing insights even if regeneration fails
+        }
+      }
+
+      // Now fetch the insights (which should be the newly generated ones if forceRefresh was true)
+      const insightRes = await api.get("/api/industry-insights/user", {
+        params,
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log("Industry insights loaded:", insightRes.data);
+      setInsightData(insightRes.data);
+    } catch (err) {
+      console.error("Error fetching insights:", err);
+      setError("Failed to load industry insights. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle zip code filter submission
+  const handleZipCodeFilter = (e) => {
+    e.preventDefault();
+    fetchInsights(zipCode, false); // Don't force refresh when filtering
+  };
+
+  // Clear location filter
+  const clearLocationFilter = () => {
+    setZipCode("");
+    fetchInsights("", false); // Don't force refresh when clearing filter
+  };
+
+  // Manual refresh function
+  const handleManualRefresh = () => {
+    fetchInsights(zipCode, true); // Force refresh when manually requested
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,12 +181,8 @@ function IndustryInsightsPage() {
           console.log("Welcome back! Showing updated insights.");
         }
 
-        // Get industry insights
-        const insightRes = await api.get("/api/industry-insights/user", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        console.log("Industry insights loaded:", insightRes.data);
-        setInsightData(insightRes.data);
+        // Get industry insights without forcing refresh
+        await fetchInsights("", false);
 
         // Update the previous user data record
         localStorage.setItem('previousUserData', JSON.stringify({
@@ -112,6 +197,9 @@ function IndustryInsightsPage() {
       }
     };
     fetchData();
+
+    // We're removing the automatic refresh on window focus to prevent unnecessary refreshes
+    // Instead, we'll add a refresh button for users to manually refresh insights when needed
   }, [navigate]);
 
   const formatDate = (dateString) => {
@@ -189,25 +277,6 @@ function IndustryInsightsPage() {
     nextActions
   } = insightData;
 
-  const handleProfileUpdate = async (updatedProfile) => {
-    setUserData(updatedProfile);
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const insightRes = await api.get("/api/industry-insights/user", {
-        params: { industry: updatedProfile.industry || "Software Development" },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      console.log("Industry insights loaded after profile update:", insightRes.data);
-      setInsightData(insightRes.data);
-    } catch (err) {
-      console.error("Error fetching insights after profile update:", err);
-      setError("Failed to load industry insights. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Determine content availability
   const hasSkillsMarketDemand = marketDemand && marketDemand.length > 0;
   const hasSalaryInfo = (salaryRanges && salaryRanges.length > 0) || expectedSalaryRange;
@@ -218,26 +287,7 @@ function IndustryInsightsPage() {
   const hasSkillBasedBoosts = skillBasedBoosts && skillBasedBoosts.length > 0;
   const hasNextActions = nextActions && nextActions.length > 0;
 
-  // Distribute content evenly based on content availability
-  const contentSections = [
-    hasSkillsMarketDemand,
-    hasSalaryInfo,
-    hasTopCompanies,
-    hasRecommendedCourses,
-    hasCareerPathInsights,
-    hasEmergingTrends,
-    hasSkillBasedBoosts
-  ].filter(Boolean).length;
-
-  // Determine optimal layout
-  const useThreeColumnLayout = contentSections >= 6;
-  const useTwoColumnLayout = contentSections >= 3 && contentSections < 6;
-  const useSingleColumnLayout = contentSections < 3;
-
-  // Setup grid layout class based on content
-  const gridLayoutClass = useThreeColumnLayout
-    ? 'lg:grid-cols-3'
-    : (useTwoColumnLayout ? 'lg:grid-cols-2' : '');
+  // Content availability is used to determine the layout of the page
 
   return (
     <div className="bg-gradient-to-b from-zinc-900 to-black min-h-screen text-white pt-16">
@@ -262,14 +312,72 @@ function IndustryInsightsPage() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => navigate('/profile/edit')}
-              className="bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white py-2 px-6 rounded-lg flex items-center transition-all shadow-md self-start md:self-auto"
-            >
-              <FaUser className="mr-2" />
-              Edit Profile
-            </button>
+            <div className="flex flex-col md:flex-row gap-3">
+              <button
+                onClick={() => navigate('/profile/edit')}
+                className="bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white py-2 px-6 rounded-lg flex items-center transition-all shadow-md self-start md:self-auto"
+              >
+                <FaUser className="mr-2" />
+                Edit Profile
+              </button>
+              <button
+                onClick={handleManualRefresh}
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white py-2 px-6 rounded-lg flex items-center transition-all shadow-md self-start md:self-auto"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Refresh Insights
+              </button>
+            </div>
           </div>
+
+          {/* Location Filter */}
+          <div className="mt-4 p-3 bg-zinc-800/50 rounded-lg border border-zinc-700">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+              <div className="flex items-center text-cyan-300">
+                <FaMapMarkerAlt className="mr-2" />
+                <span className="font-medium">Location Filter:</span>
+              </div>
+              <form onSubmit={handleZipCodeFilter} className="flex-grow flex flex-col md:flex-row gap-2">
+                <input
+                  type="text"
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  placeholder="Enter zip code"
+                  className="flex-grow bg-zinc-700 border border-zinc-600 rounded-lg p-2 text-white text-sm"
+                />
+                <button
+                  type="submit"
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white py-2 px-4 rounded-lg text-sm transition-colors"
+                >
+                  Apply Filter
+                </button>
+                {isFilteringByLocation && (
+                  <button
+                    type="button"
+                    onClick={clearLocationFilter}
+                    className="bg-zinc-600 hover:bg-zinc-500 text-white py-2 px-4 rounded-lg text-sm transition-colors"
+                  >
+                    Clear Filter
+                  </button>
+                )}
+              </form>
+            </div>
+            {insightData.location && (
+              <div className="mt-2 text-sm text-cyan-300/80">
+                <span>Showing insights for: </span>
+                <span className="font-medium text-cyan-300">
+                  {insightData.location.zipCode}
+                  {insightData.location.region && ` - ${insightData.location.region}`}
+                  {insightData.location.country && ` (${insightData.location.country})`}
+                </span>
+                {!isFilteringByLocation && userData?.zipCode === insightData.location.zipCode && (
+                  <span className="ml-2 text-green-400">(Based on your profile location)</span>
+                )}
+                {/* Currency indicator removed - all amounts are now in USD */}
+              </div>
+            )}
+          </div>
+
           {/* Last updated info */}
           <div className="flex flex-wrap items-center mt-4 text-cyan-300/80 text-sm">
             <FaCalendar className="mr-2" />
@@ -355,7 +463,11 @@ function IndustryInsightsPage() {
                 </h3>
                 {salaryRanges && salaryRanges.length > 0 && (
                   <div className="h-80 p-2">
-                    <SalaryRangesChart data={salaryRanges} />
+                    <SalaryRangesChart
+                      data={salaryRanges}
+                      currency={expectedSalaryRange?.currency || 'USD'}
+                      userSalaryExpectation={userData?.salaryExpectation}
+                    />
                   </div>
                 )}
                 {expectedSalaryRange && (
@@ -365,7 +477,7 @@ function IndustryInsightsPage() {
                       <p className="text-3xl font-bold text-cyan-50 mt-1">
                         {new Intl.NumberFormat('en-US', {
                           style: 'currency',
-                          currency: expectedSalaryRange.currency || 'USD',
+                          currency: 'USD',
                           maximumFractionDigits: 0
                         }).format(expectedSalaryRange.min)}
                       </p>
@@ -376,7 +488,7 @@ function IndustryInsightsPage() {
                       <p className="text-3xl font-bold text-cyan-50 mt-1">
                         {new Intl.NumberFormat('en-US', {
                           style: 'currency',
-                          currency: expectedSalaryRange.currency || 'USD',
+                          currency: 'USD',
                           maximumFractionDigits: 0
                         }).format(expectedSalaryRange.max)}
                       </p>

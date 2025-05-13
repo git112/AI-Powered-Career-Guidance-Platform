@@ -510,13 +510,13 @@ export const googleAuth = async (req, res) => {
         profilePicture: picture,
         isProfileComplete: false,
         authProvider: "google",
-        isEmailVerified: true, // Trust Google's verification
+        isEmailVerified: true,
       });
 
-      // Log new SSO user
+      
       logger.info(`New Google SSO user created: ${user._id}`, { userId: user._id, email });
     } else {
-      // Update existing user with Google info if they're logging in with Google
+      
       user.googleId = googleId;
       user.isEmailVerified = true;
       user.authProvider = "google";
@@ -525,15 +525,15 @@ export const googleAuth = async (req, res) => {
       }
       await user.save();
 
-      // Log SSO login
+ 
       logger.info(`Google SSO login: ${user._id}`, { userId: user._id, email });
     }
 
-    // Update last login
+    
     user.lastLogin = Date.now();
     await user.save();
 
-    // Generate token
+   
     const token = generateToken(user._id);
 
     res.json({
@@ -761,13 +761,19 @@ export const googleTokenExchange = async (req, res) => {
       client_secret: clientSecret,
       redirect_uri: redirectUri
     };
-    
-    // Add code_verifier if it exists (needed for PKCE flow)
+   
     if (code_verifier) {
       tokenParams.code_verifier = code_verifier;
     }
 
-    // Exchange code for tokens
+    
+
+
+
+
+
+ 
+
     const { tokens } = await oauth2Client.getToken(tokenParams);
 
     // Verify the ID token

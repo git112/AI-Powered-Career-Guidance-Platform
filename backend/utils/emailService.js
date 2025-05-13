@@ -4,7 +4,6 @@ import logger from './logger.js';
 
 dotenv.config();
 
-// Create transporter object
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
@@ -15,18 +14,17 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Verify connection
+
 transporter.verify()
   .then(() => logger.info('Email service ready'))
   .catch(err => logger.error('Email service error:', err));
 
-// Send verification email
 export const sendVerificationEmail = async (email, token) => {
   try {
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${token}`;
 
     const mailOptions = {
-      from: `"JobNest" <${process.env.EMAIL_FROM}>`,
+      from: `"..." <${process.env.EMAIL_FROM}>`,
       to: email,
       subject: 'Verify Your Email Address',
       html: `
