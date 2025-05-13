@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, setUserData } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,22 +15,26 @@ import {
   Briefcase,
   Code,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Layout
 } from "lucide-react";
-import ReactMarkdown from 'react-markdown';
 import html2pdf from "html2pdf.js";
 import ResumeForm from "../components/ResumeForm";
 import MDEditor from '@uiw/react-md-editor';
 import { FaLightbulb } from 'react-icons/fa';
 import { toast } from "react-hot-toast";
+import ModernResumeTemplate from "../components/ModernResumeTemplate";
 
 // Schema for resume validation
 const resumeSchema = z.object({
   contactInfo: z.object({
+    title: z.string().optional(),
     email: z.string().email().optional(),
     mobile: z.string().optional(),
     linkedin: z.string().optional(),
-    github: z.string().optional()
+    github: z.string().optional(),
+    website: z.string().optional(),
+    location: z.string().optional()
   }),
   summary: z.string().optional(),
   skills: z.string().optional(),
@@ -61,6 +65,8 @@ export default function ResumeBuilder() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+  const [selectedTemplate, setSelectedTemplate] = useState("modern"); // Options: "classic", "modern"
+  const [colorTheme, setColorTheme] = useState("blue"); // Options: blue, green, purple, orange, red
 
   // Sections for navigation
   const sections = [
@@ -137,16 +143,17 @@ export default function ResumeBuilder() {
       const element = document.getElementById("resume-pdf");
       const opt = {
         margin: [15, 15],
-        filename: "resume.pdf",
+        filename: `${userData?.name || 'resume'}_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
 
       await html2pdf().set(opt).from(element).save();
+      toast.success("Resume PDF generated successfully!");
     } catch (error) {
       console.error("PDF generation error:", error);
-      alert("Failed to generate PDF");
+      toast.error("Failed to generate PDF");
     } finally {
       setIsGenerating(false);
     }
@@ -264,7 +271,7 @@ export default function ResumeBuilder() {
                     <nav className="space-y-1">
                       {sections.map((section, index) => (
                         <button
-                          key={index}
+                          key={`section-nav-${section.name}`}
                           onClick={() => scrollToSection(index)}
                           className={`w-full flex items-center p-3 rounded-lg transition-all ${activeSectionIndex === index
                               ? "bg-gradient-to-r from-cyan-800/30 to-cyan-900/30 text-cyan-300 border-l-4 border-cyan-500"
@@ -291,7 +298,6 @@ export default function ResumeBuilder() {
                 {/* Form Sections */}
                 <div className="flex-grow space-y-8">
                   {/* Contact Information */}
-                  {/* Contact Information */}
                   <div id="section-0" className="space-y-4 bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-cyan-800/30 shadow-lg">
                     <h3 className="text-xl font-medium text-cyan-300 border-b border-cyan-900/30 pb-2 flex items-center">
                       <User className="h-5 w-5 mr-2 text-cyan-400" />
@@ -299,8 +305,9 @@ export default function ResumeBuilder() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2 md:col-span-2">
-                        <label className="text-sm text-cyan-400 font-medium">Full Name</label>
+                        <label htmlFor="fullName" className="text-sm text-cyan-400 font-medium">Full Name</label>
                         <input
+                          id="fullName"
                           type="text"
                           placeholder="Your Full Name"
                           value={userData.name}
@@ -311,9 +318,22 @@ export default function ResumeBuilder() {
                           className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-sm text-cyan-400 font-medium">Email</label>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <label htmlFor="title" className="text-sm text-cyan-400 font-medium">Professional Title</label>
                         <input
+                          id="title"
+                          type="text"
+                          placeholder="e.g. Senior Software Engineer"
+                          {...register("contactInfo.title")}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="email" className="text-sm text-cyan-400 font-medium">Email</label>
+                        <input
+                          id="email"
                           type="email"
                           placeholder="Email"
                           {...register("contactInfo.email")}
@@ -323,29 +343,57 @@ export default function ResumeBuilder() {
                           <p className="text-sm text-red-500">{errors.contactInfo.email.message}</p>
                         )}
                       </div>
+
                       <div className="space-y-2">
-                        <label className="text-sm text-cyan-400 font-medium">Mobile</label>
+                        <label htmlFor="mobile" className="text-sm text-cyan-400 font-medium">Mobile</label>
                         <input
+                          id="mobile"
                           type="text"
                           placeholder="Mobile"
                           {...register("contactInfo.mobile")}
                           className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
                         />
                       </div>
+
                       <div className="space-y-2">
-                        <label className="text-sm text-cyan-400 font-medium">LinkedIn</label>
+                        <label htmlFor="location" className="text-sm text-cyan-400 font-medium">Location</label>
                         <input
+                          id="location"
+                          type="text"
+                          placeholder="City, Country"
+                          {...register("contactInfo.location")}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="website" className="text-sm text-cyan-400 font-medium">Website</label>
+                        <input
+                          id="website"
                           type="url"
-                          placeholder="LinkedIn URL"
+                          placeholder="https://yourwebsite.com"
+                          {...register("contactInfo.website")}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="linkedin" className="text-sm text-cyan-400 font-medium">LinkedIn</label>
+                        <input
+                          id="linkedin"
+                          type="url"
+                          placeholder="LinkedIn URL or username"
                           {...register("contactInfo.linkedin")}
                           className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
                         />
                       </div>
+
                       <div className="space-y-2">
-                        <label className="text-sm text-cyan-400 font-medium">GitHub</label>
+                        <label htmlFor="github" className="text-sm text-cyan-400 font-medium">GitHub</label>
                         <input
+                          id="github"
                           type="url"
-                          placeholder="GitHub URL"
+                          placeholder="GitHub URL or username"
                           {...register("contactInfo.github")}
                           className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-cyan-800/50 text-cyan-50 placeholder:text-zinc-600 focus:ring-2 focus:ring-cyan-600 focus:border-transparent transition-all"
                         />
@@ -360,8 +408,9 @@ export default function ResumeBuilder() {
                       Professional Summary
                     </h3>
                     <div className="space-y-2">
-                      <label className="text-sm text-cyan-400 font-medium">Summary</label>
+                      <label htmlFor="summary" className="text-sm text-cyan-400 font-medium">Summary</label>
                       <textarea
+                        id="summary"
                         placeholder="Write a brief summary of your professional background and goals"
                         {...register("summary")}
                         rows={4}
@@ -377,8 +426,9 @@ export default function ResumeBuilder() {
                       Skills
                     </h3>
                     <div className="space-y-2">
-                      <label className="text-sm text-cyan-400 font-medium">Technical Skills</label>
+                      <label htmlFor="skills" className="text-sm text-cyan-400 font-medium">Technical Skills</label>
                       <textarea
+                        id="skills"
                         placeholder="List your key skills, separated by commas"
                         {...register("skills")}
                         rows={3}
@@ -475,65 +525,201 @@ export default function ResumeBuilder() {
 
             {activeTab === "preview" && (
               <div className="space-y-4">
-                {/* New integration: MDEditor toggle and warning */}
-                <button
-                  className="mb-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-800 to-cyan-700 hover:from-cyan-700 hover:to-cyan-600 text-white transition-colors shadow-md flex items-center gap-2"
-                  onClick={() => setResumeMode(resumeMode === "preview" ? "edit" : "preview")}
-                >
-                  {resumeMode === "preview" ? (
-                    <>
-                      <Edit className="h-4 w-4" />
-                      Edit Resume
-                    </>
-                  ) : (
-                    <>
-                      <Monitor className="h-4 w-4" />
-                      Show Preview
-                    </>
-                  )}
-                </button>
-
-                {resumeMode !== "preview" && (
-                  <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span className="text-sm">
-                      You will lose edited markdown if you update the form data.
-                    </span>
+                {/* Template Selection */}
+                <div className="flex flex-col md:flex-row gap-4 mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-medium text-cyan-300 mb-2">Template Style</h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setSelectedTemplate("classic")}
+                        className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                          selectedTemplate === "classic"
+                            ? "bg-gradient-to-r from-cyan-700 to-cyan-600 text-white"
+                            : "bg-zinc-800 text-cyan-400 hover:bg-zinc-700"
+                        }`}
+                      >
+                        <Layout className="h-4 w-4" />
+                        Classic
+                      </button>
+                      <button
+                        onClick={() => setSelectedTemplate("modern")}
+                        className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                          selectedTemplate === "modern"
+                            ? "bg-gradient-to-r from-cyan-700 to-cyan-600 text-white"
+                            : "bg-zinc-800 text-cyan-400 hover:bg-zinc-700"
+                        }`}
+                      >
+                        <Layout className="h-4 w-4" />
+                        Modern
+                      </button>
+                    </div>
                   </div>
+
+                  {selectedTemplate === "modern" && (
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium text-cyan-300 mb-2">Color Theme</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {["blue", "green", "purple", "orange", "red"].map((color) => {
+                          // Determine color class based on color name
+                          const getColorClass = (colorName) => {
+                            switch(colorName) {
+                              case "blue": return "bg-blue-600";
+                              case "green": return "bg-emerald-600";
+                              case "purple": return "bg-purple-600";
+                              case "orange": return "bg-orange-600";
+                              case "red": return "bg-red-600";
+                              default: return "bg-blue-600";
+                            }
+                          };
+
+                          return (
+                            <button
+                              key={color}
+                              onClick={() => setColorTheme(color)}
+                              className={`w-8 h-8 rounded-full ${
+                                colorTheme === color ? "ring-2 ring-white" : ""
+                              } ${getColorClass(color)}`}
+                              aria-label={`${color} theme`}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Classic Template Preview */}
+                {selectedTemplate === "classic" && (
+                  <>
+                    {/* Classic template controls */}
+                    <div className="flex justify-between items-center mb-4">
+                      <button
+                        className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-800 to-cyan-700 hover:from-cyan-700 hover:to-cyan-600 text-white transition-colors shadow-md flex items-center gap-2"
+                        onClick={() => setResumeMode(resumeMode === "preview" ? "edit" : "preview")}
+                      >
+                        {resumeMode === "preview" ? (
+                          <>
+                            <Edit className="h-4 w-4" />
+                            Edit Resume
+                          </>
+                        ) : (
+                          <>
+                            <Monitor className="h-4 w-4" />
+                            Show Preview
+                          </>
+                        )}
+                      </button>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={generatePDF}
+                          disabled={isGenerating || !previewContent}
+                          className="flex items-center px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-800 to-cyan-700 hover:from-cyan-700 hover:to-cyan-600 text-white disabled:opacity-50 transition-colors shadow-md"
+                        >
+                          {isGenerating ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download PDF
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {resumeMode !== "preview" && (
+                      <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
+                        <AlertTriangle className="h-5 w-5" />
+                        <span className="text-sm">
+                          You will lose edited markdown if you update the form data.
+                        </span>
+                      </div>
+                    )}
+
+                    {/* MDEditor integration with white background and black text */}
+                    <div className="border rounded-lg">
+                      <MDEditor
+                        value={previewContent}
+                        onChange={setPreviewContent}
+                        height={800}
+                        preview={resumeMode}
+                        previewOptions={{
+                          className: "bg-white text-black w-full h-full",
+                          style: {
+                            backgroundColor: "white",
+                            color: "black",
+                            padding: "20px"
+                          }
+                        }}
+                        visibleDragbar={false}
+                        style={{ backgroundColor: resumeMode === "preview" ? "white" : undefined }}
+                      />
+                    </div>
+
+                    {/* Hidden div for PDF generation */}
+                    <div className="hidden">
+                      <div id="resume-pdf">
+                        <MDEditor.Markdown
+                          source={previewContent}
+                          style={{
+                            background: "white",
+                            color: "black",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
 
-                {/* MDEditor integration with white background and black text */}
-                <div className="border rounded-lg">
-                  <MDEditor
-                    value={previewContent}
-                    onChange={setPreviewContent}
-                    height={800}
-                    preview={resumeMode}
-                    previewOptions={{
-                      className: "bg-white text-black w-full h-full",
-                      style: {
-                        backgroundColor: "white",
-                        color: "black",
-                        padding: "20px"
-                      }
-                    }}
-                    visibleDragbar={false}
-                    style={{ backgroundColor: resumeMode === "preview" ? "white" : undefined }}
-                  />
-                </div>
+                {/* Modern Template Preview */}
+                {selectedTemplate === "modern" && (
+                  <div className="bg-white p-6 rounded-lg shadow-lg">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-medium text-gray-800">Modern Resume Preview</h3>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={generatePDF}
+                          disabled={isGenerating}
+                          className="flex items-center px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-800 to-cyan-700 hover:from-cyan-700 hover:to-cyan-600 text-white disabled:opacity-50 transition-colors shadow-md"
+                        >
+                          {isGenerating ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download PDF
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
 
-                {/* Hidden div for PDF generation */}
-                <div className="hidden">
-                  <div id="resume-pdf">
-                    <MDEditor.Markdown
-                      source={previewContent}
-                      style={{
-                        background: "white",
-                        color: "black",
-                      }}
-                    />
+                    {/* Modern Resume Template */}
+                    <div className="border rounded-lg overflow-hidden" id="resume-pdf">
+                      <ModernResumeTemplate
+                        resumeData={{
+                          name: userData?.name || 'Your Name',
+                          title: formValues?.contactInfo?.title || 'Professional Title',
+                          contactInfo: formValues.contactInfo,
+                          summary: formValues.summary,
+                          skills: formValues.skills,
+                          experience: formValues.experience,
+                          education: formValues.education,
+                          projects: formValues.projects,
+                          certificates: formValues.certificates
+                        }}
+                        colorTheme={colorTheme}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>
