@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/axios';
-import { FaIndustry, FaGraduationCap, FaBriefcase, FaCode, FaUser, FaMapMarkerAlt, FaDollarSign } from 'react-icons/fa';
+import { FaIndustry, FaGraduationCap, FaBriefcase, FaCode, FaMapMarkerAlt, FaDollarSign } from 'react-icons/fa';
 
 const industries = [
   {
@@ -93,11 +93,8 @@ const OnboardingForm = () => {
     subIndustry: '',
     experience: '',
     skills: '',
-    bio: '',
     profilePicture: '',
     authProvider: 'local',
-    location: '',
-    zipCode: '',
     country: '',
     salaryExpectation: '',
   });
@@ -134,11 +131,8 @@ const OnboardingForm = () => {
         subIndustry: formData.subIndustry,
         experience: parseInt(formData.experience),
         skills: skillsArray,
-        bio: formData.bio,
         authProvider: formData.authProvider,
         profilePicture: formData.profilePicture,
-        location: formData.location,
-        zipCode: formData.zipCode,
         country: formData.country,
         salaryExpectation: formData.salaryExpectation
       };
@@ -161,8 +155,6 @@ const OnboardingForm = () => {
           industry: profileData.subIndustry || profileData.industry,
           experience: parseInt(profileData.experience),
           skills: profileData.skills,
-          zipCode: profileData.zipCode,
-          location: profileData.location,
           country: profileData.country,
           salaryExpectation: profileData.salaryExpectation,
           isIndianData: profileData.country.toLowerCase().includes('india')
@@ -209,7 +201,7 @@ const OnboardingForm = () => {
     }
 
     setError(null);
-    if (step < 4) {
+    if (step < 3) {
       setStep(step + 1);
     } else {
       handleFormCompletion();
@@ -335,51 +327,6 @@ const OnboardingForm = () => {
                 className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
               />
             </div>
-
-            <div>
-              <label htmlFor="location" className="block text-cyan-100 mb-2">City/State</label>
-              <input
-                id="location"
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="e.g. New York, NY"
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="zipCode" className="block text-cyan-100 mb-2">Zip/Postal Code</label>
-              <input
-                id="zipCode"
-                type="text"
-                name="zipCode"
-                value={formData.zipCode}
-                onChange={handleChange}
-                placeholder={formData.country.toLowerCase().includes('india') ? "e.g. 110001" : "e.g. 10001"}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100"
-              />
-              {formData.country.toLowerCase().includes('india') && (
-                <p className="text-xs text-cyan-300/70 mt-1">
-                  For Indian locations, use 6-digit postal code
-                </p>
-              )}
-            </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div>
-            <label htmlFor="bio" className="block text-cyan-100 mb-2">Professional Bio (optional)</label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              placeholder="Tell us about your professional background..."
-              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-cyan-100 h-32"
-            />
           </div>
         );
       default:
@@ -397,8 +344,6 @@ const OnboardingForm = () => {
         return <FaCode className="text-4xl text-cyan-400" />;
       case 3:
         return <FaMapMarkerAlt className="text-4xl text-cyan-400" />;
-      case 4:
-        return <FaUser className="text-4xl text-cyan-400" />;
       default:
         return null;
     }
@@ -413,9 +358,7 @@ const OnboardingForm = () => {
       case 2:
         return "Your Skills";
       case 3:
-        return "Your Location";
-      case 4:
-        return "About You";
+        return "Your Country";
       default:
         return "";
     }
@@ -428,7 +371,7 @@ const OnboardingForm = () => {
           {getStepIcon()}
           <h1 className="text-2xl font-bold text-cyan-100 mt-4">{getStepTitle()}</h1>
           <div className="flex justify-center w-full mt-4">
-            {[0, 1, 2, 3, 4].map(i => (
+            {[0, 1, 2, 3].map(i => (
               <div
                 key={i}
                 className={`h-2 w-full mx-1 rounded-full ${
@@ -472,7 +415,7 @@ const OnboardingForm = () => {
                 </svg>
                 Processing...
               </>
-            ) : step === 4 ? (
+            ) : step === 3 ? (
               'Complete'
             ) : (
               'Next'

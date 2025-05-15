@@ -27,11 +27,8 @@ export const updateProfile = async (req, res) => {
       subIndustry,
       experience,
       skills,
-      bio,
       authProvider,
       profilePicture,
-      location,
-      zipCode,
       country,
       preferredRoles,
       salaryExpectation
@@ -50,18 +47,26 @@ export const updateProfile = async (req, res) => {
     user.subIndustry = subIndustry || user.subIndustry;
     user.experience = experience || user.experience;
     user.skills = Array.isArray(skills) ? skills : skills.split(',').map(s => s.trim());
-    user.bio = bio || user.bio;
     user.authProvider = authProvider || user.authProvider;
     user.profilePicture = profilePicture || user.profilePicture;
 
     // Update additional fields
-    if (location !== undefined) user.location = location;
-    if (zipCode !== undefined) user.zipCode = zipCode;
     if (country !== undefined) user.country = country;
+
+    // Handle preferredRoles
     if (preferredRoles !== undefined) {
-      user.preferredRoles = Array.isArray(preferredRoles) ? preferredRoles :
-        (preferredRoles ? preferredRoles.split(',').map(r => r.trim()) : []);
+      // Check if it's already an array
+      if (Array.isArray(preferredRoles)) {
+        user.preferredRoles = preferredRoles;
+      } else if (preferredRoles) {
+        // Convert string to array
+        user.preferredRoles = preferredRoles.split(',').map(r => r.trim());
+      } else {
+        // Empty value
+        user.preferredRoles = [];
+      }
     }
+
     if (salaryExpectation !== undefined) user.salaryExpectation = salaryExpectation;
 
     user.isProfileComplete = true; // Mark profile as complete
@@ -69,7 +74,7 @@ export const updateProfile = async (req, res) => {
     // Save updated user
     await user.save();
 
-    // Send back the updated user data with all fields
+    // Send back the updated user data with required fields only
     res.json({
       id: user._id,
       email: user.email,
@@ -78,11 +83,8 @@ export const updateProfile = async (req, res) => {
       subIndustry: user.subIndustry,
       experience: user.experience,
       skills: user.skills,
-      bio: user.bio,
       profilePicture: user.profilePicture,
       authProvider: user.authProvider,
-      location: user.location,
-      zipCode: user.zipCode,
       country: user.country,
       preferredRoles: user.preferredRoles,
       salaryExpectation: user.salaryExpectation,

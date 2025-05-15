@@ -28,19 +28,15 @@ export const generateIndustryInsights = async (userData) => {
     const industry = userData.industry || "Software Development";
     const experience = userData.experience || 1;
     const skills = userData.skills || [];
-    const zipCode = userData.zipCode || "";
-    const location = userData.location || "";
     const country = userData.country || "US";
     const salaryExpectation = userData.salaryExpectation || "";
     const preferredRoles = userData.preferredRoles || [];
-    const isIndianData = userData.isIndianData || (country && country.toLowerCase().includes('india')) || /^[1-9]\d{5}$/.test(zipCode);
+    const isIndianData = userData.isIndianData || (country && country.toLowerCase().includes('india'));
 
     console.log("Processed user data:", {
       industry,
       experience,
       skills,
-      zipCode,
-      location,
       country,
       salaryExpectation,
       preferredRoles,
@@ -49,8 +45,7 @@ export const generateIndustryInsights = async (userData) => {
 
     // Create a more structured prompt with explicit instructions
     const currency = "USD"; // Always use USD for currency
-    const locationInfo = isIndianData ? `in India${location ? ` (specifically ${location})` : ''}` :
-                        (location ? ` in ${location}` : '');
+    const locationInfo = isIndianData ? " in India" : "";
 
     const prompt = `Analyze the current state of the ${industry} industry${locationInfo} and provide insights in ONLY the following JSON format without any additional notes or explanations:
 
@@ -168,15 +163,13 @@ function generateFallbackData(userData) {
   const industry = userData.industry || "Software Development";
   const experience = userData.experience || 1;
   const skills = userData.skills || [];
-  const zipCode = userData.zipCode || "";
-  const location = userData.location || "";
   const country = userData.country || "US";
-  const isIndianData = userData.isIndianData || (country && country.toLowerCase().includes('india')) || /^[1-9]\d{5}$/.test(zipCode);
+  const isIndianData = userData.isIndianData || (country && country.toLowerCase().includes('india'));
   const currency = "USD"; // Always use USD for currency
   const adjustmentFactor = 0.25; // For Indian locations, adjust salary to 1/4 of US salaries
 
   // Determine location string
-  let locationStr = isIndianData ? "India" : (location || "Global");
+  let locationStr = isIndianData ? "India" : "Global";
 
   // Base data structure
   const baseData = {

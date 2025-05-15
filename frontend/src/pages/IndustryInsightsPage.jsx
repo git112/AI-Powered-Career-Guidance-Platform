@@ -12,8 +12,7 @@ import {
   FaBriefcase,
   FaGraduationCap,
   FaChartLine,
-  FaMapMarkerAlt,
-  FaSync as RefreshCw
+  FaMapMarkerAlt
 } from "react-icons/fa";
 import SalaryRangesChart from "../components/charts/SalaryRanges";
 import SkillsVsMarketChart from "../components/charts/skillVsmarket";
@@ -59,12 +58,11 @@ function IndustryInsightsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showWelcomeBack, setShowWelcomeBack] = useState(false);
-  const [zipCode, setZipCode] = useState("");
-  const [isFilteringByLocation, setIsFilteringByLocation] = useState(false);
+  // Removed zipCode and location filtering
   const navigate = useNavigate();
 
   // Function to fetch insights data
-  const fetchInsights = async (zipCodeParam = "", forceRefresh = false) => {
+  const fetchInsights = async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError(null);
@@ -74,15 +72,8 @@ function IndustryInsightsPage() {
         return;
       }
 
-      // Get industry insights with optional zipCode parameter
+      // Get industry insights
       const params = {};
-      if (zipCodeParam) {
-        params.zipCode = zipCodeParam;
-        setIsFilteringByLocation(true);
-      } else {
-        // When no zipCode is provided, the backend will use the user's profile location
-        setIsFilteringByLocation(false);
-      }
 
       // Only regenerate insights if forceRefresh is true
       if (forceRefresh) {
@@ -97,8 +88,6 @@ function IndustryInsightsPage() {
             industry: userRes.data.subIndustry || userRes.data.industry,
             experience: parseInt(userRes.data.experience),
             skills: userRes.data.skills,
-            zipCode: userRes.data.zipCode,
-            location: userRes.data.location,
             country: userRes.data.country,
             salaryExpectation: userRes.data.salaryExpectation,
             preferredRoles: userRes.data.preferredRoles,
@@ -133,22 +122,7 @@ function IndustryInsightsPage() {
     }
   };
 
-  // Handle zip code filter submission
-  const handleZipCodeFilter = (e) => {
-    e.preventDefault();
-    fetchInsights(zipCode, false); // Don't force refresh when filtering
-  };
-
-  // Clear location filter
-  const clearLocationFilter = () => {
-    setZipCode("");
-    fetchInsights("", false); // Don't force refresh when clearing filter
-  };
-
-  // Manual refresh function
-  const handleManualRefresh = () => {
-    fetchInsights(zipCode, true); // Force refresh when manually requested
-  };
+  // Removed zipCode filter handlers
 
   useEffect(() => {
     const fetchData = async () => {
@@ -182,7 +156,7 @@ function IndustryInsightsPage() {
         }
 
         // Get industry insights without forcing refresh
-        await fetchInsights("", false);
+        await fetchInsights(false);
 
         // Update the previous user data record
         localStorage.setItem('previousUserData', JSON.stringify({
@@ -251,13 +225,13 @@ function IndustryInsightsPage() {
             <span>No insights available yet</span>
           </div>
           <p className="text-zinc-400 mb-6 text-center">
-            We couldn't find any industry insights for your profile. Please try again later.
+            We couldn't find any industry insights for your profile. Try updating your profile information to generate insights.
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => navigate('/profile/edit')}
             className="w-full bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md"
           >
-            Refresh
+            Update Profile
           </button>
         </div>
       </div>
@@ -320,63 +294,18 @@ function IndustryInsightsPage() {
                 <FaUser className="mr-2" />
                 Edit Profile
               </button>
-              <button
-                onClick={handleManualRefresh}
-                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white py-2 px-6 rounded-lg flex items-center transition-all shadow-md self-start md:self-auto"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh Insights
-              </button>
             </div>
           </div>
 
-          {/* Location Filter */}
-          <div className="mt-4 p-3 bg-zinc-800/50 rounded-lg border border-zinc-700">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+          {/* Country display */}
+          {userData?.country && (
+            <div className="mt-4 p-3 bg-zinc-800/50 rounded-lg border border-zinc-700">
               <div className="flex items-center text-cyan-300">
                 <FaMapMarkerAlt className="mr-2" />
-                <span className="font-medium">Location Filter:</span>
+                <span className="font-medium">Country: {userData.country}</span>
               </div>
-              <form onSubmit={handleZipCodeFilter} className="flex-grow flex flex-col md:flex-row gap-2">
-                <input
-                  type="text"
-                  value={zipCode}
-                  onChange={(e) => setZipCode(e.target.value)}
-                  placeholder="Enter zip code"
-                  className="flex-grow bg-zinc-700 border border-zinc-600 rounded-lg p-2 text-white text-sm"
-                />
-                <button
-                  type="submit"
-                  className="bg-cyan-600 hover:bg-cyan-500 text-white py-2 px-4 rounded-lg text-sm transition-colors"
-                >
-                  Apply Filter
-                </button>
-                {isFilteringByLocation && (
-                  <button
-                    type="button"
-                    onClick={clearLocationFilter}
-                    className="bg-zinc-600 hover:bg-zinc-500 text-white py-2 px-4 rounded-lg text-sm transition-colors"
-                  >
-                    Clear Filter
-                  </button>
-                )}
-              </form>
             </div>
-            {insightData.location && (
-              <div className="mt-2 text-sm text-cyan-300/80">
-                <span>Showing insights for: </span>
-                <span className="font-medium text-cyan-300">
-                  {insightData.location.zipCode}
-                  {insightData.location.region && ` - ${insightData.location.region}`}
-                  {insightData.location.country && ` (${insightData.location.country})`}
-                </span>
-                {!isFilteringByLocation && userData?.zipCode === insightData.location.zipCode && (
-                  <span className="ml-2 text-green-400">(Based on your profile location)</span>
-                )}
-                {/* Currency indicator removed - all amounts are now in USD */}
-              </div>
-            )}
-          </div>
+          )}
 
           {/* Last updated info */}
           <div className="flex flex-wrap items-center mt-4 text-cyan-300/80 text-sm">

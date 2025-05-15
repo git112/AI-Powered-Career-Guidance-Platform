@@ -5,7 +5,6 @@ import {
   Factory,
   Briefcase,
   Code,
-  User,
   Building,
   DollarSign,
   RefreshCw
@@ -22,9 +21,6 @@ const ProfileEdit = () => {
     subIndustry: '',
     experience: '',
     skills: [],
-    bio: '',
-    location: '',
-    zipCode: '',
     country: '',
     preferredRoles: [],
     salaryExpectation: '',
@@ -153,8 +149,6 @@ const ProfileEdit = () => {
         subIndustry: formData.subIndustry,  // Explicitly include subIndustry
         experience: parseInt(formData.experience) || 0,
         skills: formData.skills,
-        zipCode: formData.zipCode,
-        location: formData.location,
         country: formData.country,
         salaryExpectation: formData.salaryExpectation,
         preferredRoles: formData.preferredRoles,
@@ -357,52 +351,7 @@ const ProfileEdit = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-cyan-100 mb-2 flex items-center">
-              <User className="mr-2 h-5 w-5" />
-              Bio
-            </label>
-            <textarea
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
-              rows="4"
-            ></textarea>
-          </div>
 
-          <div>
-            <label className="block text-cyan-100 mb-2 flex items-center">
-              <Building className="mr-2 h-5 w-5" />
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
-              placeholder="City, State"
-            />
-          </div>
-
-          <div>
-            <label className="block text-cyan-100 mb-2 flex items-center">
-              <Building className="mr-2 h-5 w-5" />
-              Zip Code
-            </label>
-            <input
-              type="text"
-              name="zipCode"
-              value={formData.zipCode}
-              onChange={handleChange}
-              className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
-              placeholder="Enter your zip/postal code"
-            />
-            <p className="text-xs text-cyan-300/70 mt-1">
-              For Indian locations, use 6-digit postal code (e.g., 110001)
-            </p>
-          </div>
 
           <div>
             <label className="block text-cyan-100 mb-2 flex items-center">
