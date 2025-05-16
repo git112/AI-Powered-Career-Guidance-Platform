@@ -76,6 +76,27 @@ export const generateInsights = async (req, res) => {
 
             console.log('AI Insights generated:', aiInsights);
 
+            // Check if we have valid city salary data
+            if (!aiInsights.citySalaryData || aiInsights.citySalaryData.length === 0) {
+                console.log('No city salary data received from Gemini API, using empty array');
+                aiInsights.citySalaryData = [];
+            } else {
+                // Log the city salary data for debugging
+                console.log('City salary data received from Gemini API:', JSON.stringify(aiInsights.citySalaryData));
+
+                // Ensure each city has a rolesSalaries array
+                aiInsights.citySalaryData = aiInsights.citySalaryData.map(city => {
+                    if (!city.rolesSalaries || !Array.isArray(city.rolesSalaries)) {
+                        console.log(`City ${city.city} has no rolesSalaries array, adding empty array`);
+                        return {
+                            ...city,
+                            rolesSalaries: []
+                        };
+                    }
+                    return city;
+                });
+            }
+
             // Find existing insight by userId only (so it updates even when industry changes)
             let insight = await IndustryInsight.findOne({
                 userId
@@ -100,9 +121,9 @@ export const generateInsights = async (req, res) => {
 
             // Transform AI insights to match frontend expectations
             const transformedInsights = {
-                industryOverview: aiInsights.marketOutlook || "Industry overview information not available",
+                industryOverview: aiInsights.industryOverview || aiInsights.marketOutlook || "Industry overview information not available",
                 marketDemand: aiInsights.marketDemand || [],
-                salaryRanges: aiInsights.salaryRanges || [],
+                citySalaryData: aiInsights.citySalaryData || [],
                 expectedSalaryRange: aiInsights.expectedSalaryRange || { min: 80000, max: 120000, currency: 'USD' },
                 skillBasedBoosts: aiInsights.skillBasedBoosts || [],
                 topCompanies: aiInsights.topCompanies || [],
@@ -195,82 +216,11 @@ export const generateInsights = async (req, res) => {
         } catch (error) {
             console.error('Error in AI insights generation or saving:', error);
 
-            // Provide fallback insights if AI generation fails
-            const fallbackInsights = createSampleInsights(industry, experience, skills);
-
-            // Get user data to check for zipCode
-            const user = await User.findById(userId);
-            const userZipCode = zipCode || (user ? user.zipCode : null);
-
-            // Prepare location data if zipCode is available
-            let locationData = {};
-            if (userZipCode) {
-                const isIndianZipCode = /^[1-9]\d{5}$/.test(userZipCode);
-                locationData = {
-                    location: {
-                        zipCode: userZipCode,
-                        country: isIndianZipCode ? 'India' : 'United States',
-                        region: isIndianZipCode ? getIndianRegionFromZipCode(userZipCode) : '',
-                        city: ''
-                    }
-                };
-
-                // Adjust salary amounts for Indian locations but keep currency as USD
-                if (isIndianZipCode && fallbackInsights.expectedSalaryRange) {
-                    // Using a factor to adjust salaries for Indian market (approximately 1/4 of US salaries)
-                    const adjustmentFactor = 0.25;
-
-                    fallbackInsights.expectedSalaryRange.min = Math.round(fallbackInsights.expectedSalaryRange.min * adjustmentFactor);
-                    fallbackInsights.expectedSalaryRange.max = Math.round(fallbackInsights.expectedSalaryRange.max * adjustmentFactor);
-                    fallbackInsights.expectedSalaryRange.currency = 'USD'; // Always keep as USD
-
-                    // Update salary ranges - adjust amounts but keep currency as USD
-                    if (fallbackInsights.salaryRanges && fallbackInsights.salaryRanges.length > 0) {
-                        fallbackInsights.salaryRanges = fallbackInsights.salaryRanges.map(range => ({
-                            ...range,
-                            minSalary: Math.round(range.minSalary * adjustmentFactor),
-                            medianSalary: Math.round(range.medianSalary * adjustmentFactor),
-                            maxSalary: Math.round(range.maxSalary * adjustmentFactor)
-                        }));
-                    }
-
-                    // Update skill boosts - adjust amounts but keep currency as USD
-                    if (fallbackInsights.skillBasedBoosts && fallbackInsights.skillBasedBoosts.length > 0) {
-                        fallbackInsights.skillBasedBoosts = fallbackInsights.skillBasedBoosts.map(boost => ({
-                            ...boost,
-                            salaryIncrease: Math.round(boost.salaryIncrease * adjustmentFactor)
-                        }));
-                    }
-                }
-            }
-
-            // Check if user already has insights
-            let insight = await IndustryInsight.findOne({ userId });
-
-            if (insight) {
-                // Update existing insight with fallback data
-                Object.assign(insight, { industry, ...fallbackInsights, ...locationData });
-                insight.lastUpdated = new Date();
-                insight.nextUpdate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-                await insight.save();
-            } else {
-                // Create new insight with fallback data
-                insight = await IndustryInsight.create({
-                    userId,
-                    industry,
-                    ...fallbackInsights,
-                    ...locationData,
-                    lastUpdated: new Date(),
-                    nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                });
-            }
-
-            await User.findByIdAndUpdate(userId, {
-                industryInsight: insight._id
+            // Return an error response without using fallback data
+            return res.status(500).json({
+                message: 'Failed to generate real-time insights from Gemini AI',
+                error: error.message
             });
-
-            console.log('Fallback insights created:', insight._id);
-            res.json(insight);
         }
     } catch (error) {
         console.error('Error generating insights:', error);
@@ -280,165 +230,30 @@ export const generateInsights = async (req, res) => {
         });
     }
 };
-// Test endpoint with sample data
+// Test endpoint with real-time data
 export const testInsights = async (req, res) => {
     try {
         const industry = req.query.industry || 'Software Development';
         const experience = parseInt(req.query.experience) || 3;
         const skills = req.query.skills ? req.query.skills.split(',') : ['JavaScript', 'React', 'Node.js'];
+        const country = req.query.country || 'US';
 
-        // Create sample insights data
-        const sampleInsights = createSampleInsights(industry, experience, skills);
+        // Generate real-time insights using Gemini AI
+        const aiInsights = await generateIndustryInsights({
+            industry,
+            experience,
+            skills,
+            country
+        });
 
-        res.json(sampleInsights);
+        res.json(aiInsights);
     } catch (error) {
         console.error('Error in test insights:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(500).json({
+            message: 'Failed to generate real-time insights from Gemini AI',
+            error: error.message
+        });
     }
-};
-
-// Helper function to create sample insights data that matches frontend expectations
-const createSampleInsights = (industry, experience, skills) => {
-    const expLevel = experience < 3 ? 'Junior' : experience < 7 ? 'Mid-level' : 'Senior';
-
-    return {
-        industryOverview: `The ${industry} industry is currently experiencing strong growth with increasing demand for skilled professionals. Companies are investing in digital transformation initiatives, creating opportunities for those with relevant skills and experience.`,
-
-        marketDemand: [
-            ...(Array.isArray(skills) ? skills.map(skill => ({
-                skill,
-                demandScore: Math.floor(Math.random() * 30) + 70
-            })) : []),
-            { skill: 'JavaScript', demandScore: 85 },
-            { skill: 'React', demandScore: 90 },
-            { skill: 'Node.js', demandScore: 80 },
-            { skill: 'Python', demandScore: 75 },
-            { skill: 'AWS', demandScore: 85 },
-            { skill: 'Docker', demandScore: 70 },
-            { skill: 'TypeScript', demandScore: 80 },
-            { skill: 'GraphQL', demandScore: 65 }
-        ].slice(0, 8), // Limit to 8 skills
-
-        salaryRanges: [
-            {
-                role: 'Junior Developer',
-                minSalary: 60000,
-                medianSalary: 75000,
-                maxSalary: 90000
-            },
-            {
-                role: 'Mid-level Developer',
-                minSalary: 85000,
-                medianSalary: 105000,
-                maxSalary: 125000
-            },
-            {
-                role: 'Senior Developer',
-                minSalary: 120000,
-                medianSalary: 145000,
-                maxSalary: 180000
-            }
-        ],
-
-        expectedSalaryRange: {
-            min: 85000 + (experience * 5000),
-            max: 120000 + (experience * 10000),
-            currency: 'USD'
-        },
-
-        skillBasedBoosts: [
-            { skill: 'AWS', salaryIncrease: 15000 },
-            { skill: 'TypeScript', salaryIncrease: 10000 },
-            { skill: 'React', salaryIncrease: 12000 },
-            { skill: 'GraphQL', salaryIncrease: 8000 }
-        ],
-
-        topCompanies: [
-            {
-                name: 'Google',
-                openPositions: 150,
-                roles: ['Software Engineer', 'Frontend Developer', 'Backend Developer']
-            },
-            {
-                name: 'Microsoft',
-                openPositions: 120,
-                roles: ['Full Stack Developer', 'Cloud Engineer', 'DevOps Engineer']
-            },
-            {
-                name: 'Amazon',
-                openPositions: 200,
-                roles: ['Software Developer', 'AWS Specialist', 'Systems Engineer']
-            },
-            {
-                name: 'Meta',
-                openPositions: 100,
-                roles: ['React Developer', 'Frontend Engineer', 'Product Engineer']
-            }
-        ],
-
-        recommendedCourses: [
-            {
-                name: 'Modern JavaScript for React Developers',
-                platform: 'Udemy',
-                url: 'https://www.udemy.com',
-                skillsCovered: ['JavaScript', 'ES6', 'React']
-            },
-            {
-                name: 'Complete Node.js Developer',
-                platform: 'Coursera',
-                url: 'https://www.coursera.org',
-                skillsCovered: ['Node.js', 'Express', 'MongoDB']
-            },
-            {
-                name: 'AWS Certified Developer',
-                platform: 'AWS Training',
-                url: 'https://aws.amazon.com/training',
-                skillsCovered: ['AWS', 'Cloud', 'DevOps']
-            }
-        ],
-
-        careerPathInsights: [
-            {
-                title: `From ${expLevel} to Technical Lead`,
-                description: `Transition from ${expLevel} Developer to Technical Lead by developing leadership skills and deepening technical expertise.`,
-                growthPotential: 'High'
-            },
-            {
-                title: `${industry} Architect Path`,
-                description: `Develop architecture skills to move into a solutions architect role within ${industry}.`,
-                growthPotential: 'Medium'
-            }
-        ],
-
-        emergingTrends: [
-            {
-                name: 'Remote work opportunities increasing by 30% in this sector',
-                description: 'Companies are embracing remote work policies, creating more opportunities for developers to work from anywhere.'
-            },
-            {
-                name: 'Demand for TypeScript skills growing rapidly',
-                description: 'TypeScript adoption continues to rise as teams prioritize type safety and improved developer experience.'
-            }
-        ],
-
-        quickInsights: [
-            {
-                title: 'Remote work opportunities increasing by 30% in this sector',
-                type: 'trend'
-            },
-            {
-                title: 'Demand for TypeScript skills growing rapidly',
-                type: 'trend'
-            },
-            {
-                title: 'New AI tools changing development workflows',
-                type: 'alert'
-            }
-        ],
-
-        lastUpdated: new Date(),
-        nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 1 week from now
-    };
 };
 
 export const createIndustryInsight = async (req, res) => {

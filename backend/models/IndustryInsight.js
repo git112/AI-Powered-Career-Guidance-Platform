@@ -6,30 +6,44 @@ const IndustryInsightSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  industry: { 
-    type: String, 
+  industry: {
+    type: String,
     required: true,
     trim: true
   },
-  
+
   // Fields aligned with frontend expectations
   industryOverview: {
     type: String,
     default: "Industry overview information not available"
   },
-  
+
   marketDemand: [{
     skill: String,
     demandScore: Number
   }],
-  
+
   salaryRanges: [{
     role: String,
     minSalary: Number,
     medianSalary: Number,
     maxSalary: Number
   }],
-  
+
+  citySalaryData: [{
+    city: String,
+    avgSalary: Number,
+    salaryTrend: String,
+    demandLevel: String,
+    rolesSalaries: [{
+      role: String,
+      minSalary: Number,
+      medianSalary: Number,
+      maxSalary: Number,
+      location: String
+    }]
+  }],
+
   expectedSalaryRange: {
     min: Number,
     max: Number,
@@ -38,36 +52,36 @@ const IndustryInsightSchema = new mongoose.Schema({
       default: 'USD'
     }
   },
-  
+
   skillBasedBoosts: [{
     skill: String,
     salaryIncrease: Number
   }],
-  
+
   topCompanies: [{
     name: String,
     openPositions: Number,
     roles: [String]
   }],
-  
+
   recommendedCourses: [{
     name: String,
     platform: String,
     url: String,
     skillsCovered: [String]
   }],
-  
+
   careerPathInsights: [{
     title: String,
     description: String,
     growthPotential: String
   }],
-  
+
   emergingTrends: [{
     name: String,
     description: String
   }],
-  
+
   quickInsights: {
     type: [{
       title: String,
@@ -76,9 +90,9 @@ const IndustryInsightSchema = new mongoose.Schema({
     default: []
   },
 
-  lastUpdated: { 
-    type: Date, 
-    default: Date.now 
+  lastUpdated: {
+    type: Date,
+    default: Date.now
   },
 
   nextUpdate: {

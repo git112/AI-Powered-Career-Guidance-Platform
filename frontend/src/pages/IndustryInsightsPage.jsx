@@ -14,8 +14,8 @@ import {
   FaChartLine,
   FaMapMarkerAlt
 } from "react-icons/fa";
-import SalaryRangesChart from "../components/charts/SalaryRanges";
 import SkillsVsMarketChart from "../components/charts/skillVsmarket";
+import CitySalaryRanges from "../components/charts/CitySalaryRanges";
 import { useEffect, useState } from "react";
 import api from "../lib/axios";
 import TopCompaniesTable from "../components/tables/TopCompaniesTable";
@@ -84,23 +84,28 @@ function IndustryInsightsPage() {
           });
 
           // Generate new insights with the latest profile data
-          await api.post('/api/industry-insights/generate', {
-            industry: userRes.data.subIndustry || userRes.data.industry,
-            experience: parseInt(userRes.data.experience),
-            skills: userRes.data.skills,
-            country: userRes.data.country,
-            salaryExpectation: userRes.data.salaryExpectation,
-            preferredRoles: userRes.data.preferredRoles,
-            isIndianData: userRes.data.country.toLowerCase().includes('india'),
-            forceRefresh: true
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
+          try {
+            await api.post('/api/industry-insights/generate', {
+              industry: userRes.data.subIndustry || userRes.data.industry,
+              experience: parseInt(userRes.data.experience),
+              skills: userRes.data.skills,
+              country: userRes.data.country,
+              salaryExpectation: userRes.data.salaryExpectation,
+              preferredRoles: userRes.data.preferredRoles,
+              isIndianData: userRes.data.country.toLowerCase().includes('india'),
+              forceRefresh: true
+            }, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
 
-          console.log("Insights regenerated with latest profile data");
+            console.log("Insights regenerated with latest profile data");
+          } catch (error) {
+            console.error("Failed to generate real-time insights from Gemini AI:", error.response?.data?.message || error.message);
+            // Show a more specific error message but continue to fetch existing insights
+          }
         } catch (regenerateErr) {
           console.error("Error regenerating insights:", regenerateErr);
           // Continue to fetch existing insights even if regeneration fails
@@ -113,10 +118,16 @@ function IndustryInsightsPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       console.log("Industry insights loaded:", insightRes.data);
+
+      // Check if we have city salary data
+      if (!insightRes.data.citySalaryData || insightRes.data.citySalaryData.length === 0) {
+        console.warn("No city salary data received from API");
+      }
+
       setInsightData(insightRes.data);
     } catch (err) {
       console.error("Error fetching insights:", err);
-      setError("Failed to load industry insights. Please try again later.");
+      setError("Failed to load real-time industry insights. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -241,7 +252,7 @@ function IndustryInsightsPage() {
   const {
     industryOverview,
     marketDemand,
-    salaryRanges,
+    citySalaryData,
     expectedSalaryRange,
     skillBasedBoosts,
     topCompanies,
@@ -253,7 +264,6 @@ function IndustryInsightsPage() {
 
   // Determine content availability
   const hasSkillsMarketDemand = marketDemand && marketDemand.length > 0;
-  const hasSalaryInfo = (salaryRanges && salaryRanges.length > 0) || expectedSalaryRange;
   const hasTopCompanies = topCompanies && topCompanies.length > 0;
   const hasRecommendedCourses = recommendedCourses && recommendedCourses.length > 0;
   const hasCareerPathInsights = careerPathInsights && careerPathInsights.length > 0;
@@ -358,7 +368,12 @@ function IndustryInsightsPage() {
               Industry Overview
             </h2>
             <div className="prose prose-invert max-w-none">
-              <p className="text-zinc-300 leading-relaxed">{industryOverview}</p>
+              {/* Split the overview into paragraphs for better readability */}
+              {industryOverview.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="text-zinc-300 leading-relaxed mb-4">
+                  {paragraph}
+                </p>
+              ))}
             </div>
 
             {/* Next Actions Section - Full width inside overview */}
@@ -370,62 +385,62 @@ function IndustryInsightsPage() {
 
         {/* Content Grid - Adaptive Layout */}
         <div className="grid grid-cols-1 gap-6">
-          {/* Skills vs Market Demand and Salary Information in one row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {hasSkillsMarketDemand && (
-              <div id="skills-section" className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
-                <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
-                  <FaChartBar className="mr-3 text-cyan-400" />
-                  Skills vs Market Demand
-                </h3>
-                <div className="h-80 p-2">
-                  <SkillsVsMarketChart marketDemand={marketDemand} userSkills={userData?.skills || []} />
+          {/* Skills vs Market Demand */}
+          {hasSkillsMarketDemand && (
+            <div id="skills-section" className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
+              <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
+                <FaChartBar className="mr-3 text-cyan-400" />
+                Skills vs Market Demand
+              </h3>
+              <div className="h-80 p-2">
+                <SkillsVsMarketChart marketDemand={marketDemand} userSkills={userData?.skills || []} />
+              </div>
+            </div>
+          )}
+
+          {/* City Salary Information - Now full width and below Skills vs Market Demand */}
+          <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
+            <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
+              <FaChartLine className="mr-3 text-cyan-400" />
+              City Salary Information
+            </h3>
+
+            {expectedSalaryRange && (
+              <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8 mb-6 p-4 bg-gradient-to-r from-cyan-900/20 to-zinc-800/20 rounded-lg border border-zinc-700">
+                <div className="text-center">
+                  <p className="text-cyan-400/80 text-sm uppercase tracking-wide font-medium">Expected Salary Range</p>
+                  <p className="text-xl font-bold text-cyan-50 mt-1">
+                    {new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      maximumFractionDigits: 0
+                    }).format(expectedSalaryRange.min)}
+                    {' - '}
+                    {new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      maximumFractionDigits: 0
+                    }).format(expectedSalaryRange.max)}
+                  </p>
                 </div>
               </div>
             )}
 
-            {hasSalaryInfo && (
-              <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
-                <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
-                  <FaChartLine className="mr-3 text-cyan-400" />
-                  Salary Information
-                </h3>
-                {salaryRanges && salaryRanges.length > 0 && (
-                  <div className="h-80 p-2">
-                    <SalaryRangesChart
-                      data={salaryRanges}
-                      currency={expectedSalaryRange?.currency || 'USD'}
-                      userSalaryExpectation={userData?.salaryExpectation}
-                    />
-                  </div>
-                )}
-                {expectedSalaryRange && (
-                  <div className="flex flex-col md:flex-row justify-center items-center space-y-6 md:space-y-0 md:space-x-12 mt-6 p-6 bg-gradient-to-r from-cyan-900/20 to-zinc-800/20 rounded-lg border border-zinc-700">
-                    <div className="text-center">
-                      <p className="text-cyan-400/80 text-sm uppercase tracking-wide font-medium">Minimum</p>
-                      <p className="text-3xl font-bold text-cyan-50 mt-1">
-                        {new Intl.NumberFormat('en-US', {
-                          style: 'currency',
-                          currency: 'USD',
-                          maximumFractionDigits: 0
-                        }).format(expectedSalaryRange.min)}
-                      </p>
-                    </div>
-                    <div className="hidden md:block h-16 border-l border-zinc-700"></div>
-                    <div className="text-center">
-                      <p className="text-cyan-400/80 text-sm uppercase tracking-wide font-medium">Maximum</p>
-                      <p className="text-3xl font-bold text-cyan-50 mt-1">
-                        {new Intl.NumberFormat('en-US', {
-                          style: 'currency',
-                          currency: 'USD',
-                          maximumFractionDigits: 0
-                        }).format(expectedSalaryRange.max)}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="min-h-[500px]">
+              {citySalaryData && citySalaryData.length > 0 ? (
+                <CitySalaryRanges
+                  data={citySalaryData}
+                  userSalaryExpectation={userData?.salaryExpectation}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-[300px] p-4 bg-zinc-800/50 rounded-lg border border-zinc-700">
+                  <p className="text-cyan-50/70 mb-2">No city salary data available</p>
+                  <p className="text-cyan-50/50 text-sm text-center">
+                    We couldn't retrieve salary data for cities in this country. Please try again later or select a different country.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Other sections */}
