@@ -56,18 +56,45 @@
      ```
 
 3. **Environment Variables**:
-   - Create a `.env` file in the `frontend` directory:
+   - Copy the `.env.example` files to create your own `.env` files:
+     ```bash
+     # For frontend
+     cd frontend
+     cp .env.example .env
+
+     # For backend
+     cd ../backend
+     cp .env.example .env
      ```
-     VITE_GOOGLE_CLIENT_ID=your_google_client_id
-     ```
-   - Create a `.env` file in the `backend` directory:
-     ```
-     GEMINI_API_KEY=your_gemini_api_key
-     JWT_SECRET=your_jwt_secret
-     MONGO_URI=your_mongo_uri
-     EMAIL_FROM=your_email@example.com
-     EMAIL_PASSWORD=your_email_password
-     ```
+   - Edit both `.env` files to add your actual credentials:
+     - Frontend `.env`:
+       ```
+       VITE_API_URL=http://localhost:8000
+       VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
+       VITE_APP_NAME=JobNest
+       ```
+     - Backend `.env`:
+       ```
+       # Google OAuth
+       GOOGLE_CLIENT_ID=your_google_client_id_here
+       GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+       GOOGLE_REDIRECT_URI=http://localhost:5174/auth
+
+       # JWT and Database
+       JWT_SECRET=your_jwt_secret_here
+       MONGO_URI=your_mongodb_connection_string_here
+
+       # Gemini AI
+       GEMINI_API_KEY=your_gemini_api_key_here
+
+       # Other settings
+       EMAIL_FROM=your_email@example.com
+       EMAIL_PASSWORD=your_email_password_here
+       SESSION_SECRET=your_session_secret_here
+       FRONTEND_URL=http://localhost:5174
+       PORT=8000
+       ```
+   - **Important**: Never commit your `.env` files to version control. They are already added to `.gitignore`.
 
 4. **Run the application**:
    - Start the backend server:
@@ -93,8 +120,9 @@
 
 ### 📊 Industry Insights
 - View real-time data on job market trends
-- Filter insights by Indian locations
-- View salary information in rupees (₹)
+- Filter insights by countries
+- Compare salary ranges and job roles across different countries
+
 
 ### 📝 Resume Building
 - Create a professional resume with AI assistance
