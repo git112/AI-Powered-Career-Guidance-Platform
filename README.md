@@ -1,16 +1,18 @@
-# 🚀 JobNest
+# 🚀 AI-Powered Career Guidance Platform
 
 <div align="center">
-  <h3>AI-Powered Career Advancement Platform</h3>
-  <p>Bridge skill gaps and land your dream job with personalized insights</p>
+  <h3>Intelligent Career Advancement & Insights Platform</h3>
+  <p>Bridge skill gaps, compare opportunities globally, and land your dream job with AI-powered insights</p>
 </div>
 
 ## ✨ Features
 
 - **🤖 AI Job Matching**: Get personalized job recommendations based on your skills and preferences
 - **📊 Skill Gap Analysis**: Identify missing skills and receive course recommendations to improve your profile
-- **📈 Industry Insights**: Access real-time data on industry trends, salary ranges, and in-demand skills in Indian markets (₹)
-- **📝 Resume Builder**: Create an ATS-optimized resume with AI assistance and get feedback
+- **📈 Industry Insights**: Access real-time data on industry trends, salary ranges, and in-demand skills with detailed tooltips
+- **🌎 Global Comparison**: Compare salary ranges and required skills between countries and roles
+- **📊 City Salary Analysis**: View detailed salary information for top cities with trend indicators
+- **📝 Modern Resume Builder**: Create an ATS-optimized resume with AI assistance and get feedback
 - **🧠 Competency Testing**: Take assessments to showcase your skills and stand out to employers
 
 ## 🛠️ Tech Stack
@@ -18,15 +20,18 @@
 ### Frontend
 - **⚛️ React** with Vite for fast development
 - **🎨 Tailwind CSS** for modern, responsive design
-- **🔐 Google OAuth** for authentication
+- **� Recharts** for interactive data visualization
+- **�🔐 Google OAuth** for authentication
 
 ### Backend
 - **📡 Node.js** with Express for API development
 - **🗄️ MongoDB** for database
 - **🔒 JWT** for secure authentication
+- **📋 JSON Parser** for robust API response handling
 
 ### AI Services
-- **🧠 Google Generative AI** (Gemini) for intelligent features
+- **🧠 Google Generative AI** (Gemini) for intelligent features and data generation
+- **🔍 AI-powered industry insights** with real-time data analysis
 
 ## 🚀 Installation
 
