@@ -1,4 +1,4 @@
-import { generateIndustryInsights } from "../services/aiDashboard.js";
+import { generateIndustryInsights, generateComparisonInsights } from "../services/aiDashboard.js";
 import IndustryInsight from "../models/IndustryInsight.js";
 import User from "../models/Users.js";
 
@@ -51,7 +51,6 @@ export const generateInsights = async (req, res) => {
             location,
             country,
             salaryExpectation,
-            preferredRoles,
             isIndianData
         } = req.body;
         const userId = req.user.id;
@@ -70,7 +69,6 @@ export const generateInsights = async (req, res) => {
                 location,
                 country,
                 salaryExpectation,
-                preferredRoles,
                 isIndianData: isIndianData || (country && country.toLowerCase().includes('india'))
             });
 
@@ -285,6 +283,151 @@ export const deleteIndustryInsight = async (req, res) => {
         res.json({ message: "Industry insight deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+// Generate comparison data between countries and roles
+export const generateComparisonData = async (req, res) => {
+    try {
+        console.log('Generating comparison data with:', req.body);
+        const {
+            industry,
+            experience,
+            skills,
+            currentCountry,
+            targetCountry,
+            currentRole,
+            targetRole,
+            salaryExpectation
+        } = req.body;
+        const userId = req.user.id;
+
+        // Validate required fields
+        if (!industry) {
+            return res.status(400).json({ message: 'Industry is required' });
+        }
+
+        if (!currentCountry) {
+            return res.status(400).json({ message: 'Current country is required' });
+        }
+
+        if (!targetCountry) {
+            return res.status(400).json({ message: 'Target country is required' });
+        }
+
+        if (!currentRole) {
+            return res.status(400).json({ message: 'Current role is required' });
+        }
+
+        if (!targetRole) {
+            return res.status(400).json({ message: 'Target role is required' });
+        }
+
+        // Log the validated data
+        console.log('Validated comparison request data:', {
+            industry,
+            experience,
+            skillsCount: Array.isArray(skills) ? skills.length : 0,
+            currentCountry,
+            targetCountry,
+            currentRole,
+            targetRole,
+            hasSalaryExpectation: !!salaryExpectation
+        });
+
+        try {
+            // Generate comparison insights using AI service
+            const comparisonData = await generateComparisonInsights({
+                industry,
+                experience,
+                skills: Array.isArray(skills) ? skills : [],
+                currentCountry,
+                targetCountry,
+                currentRole,
+                targetRole,
+                salaryExpectation
+            });
+
+            // Validate the response data structure
+            if (!comparisonData) {
+                console.error('Empty comparison data returned from AI service');
+                return res.status(500).json({
+                    message: 'Failed to generate comparison data: Empty response from AI service'
+                });
+            }
+
+            // Check if we got a fallback or incomplete response
+            const hasCurrentCountryData = comparisonData.countrySalaryComparison?.currentCountry?.topCities?.length > 0;
+            const hasTargetCountryData = comparisonData.countrySalaryComparison?.targetCountry?.topCities?.length > 0;
+            const hasRoleComparisonData = comparisonData.roleComparison?.currentRole && comparisonData.roleComparison?.targetRole;
+            const hasSalaryExpectationAnalysis = !!comparisonData.salaryExpectationAnalysis;
+
+            // Validate rolesSalaries arrays in each city
+            let rolesSalariesValid = true;
+
+            if (hasCurrentCountryData) {
+                comparisonData.countrySalaryComparison.currentCountry.topCities.forEach(city => {
+                    if (!Array.isArray(city.rolesSalaries)) {
+                        console.warn(`Invalid rolesSalaries in current country city ${city.city}`);
+                        city.rolesSalaries = [];
+                        rolesSalariesValid = false;
+                    }
+                });
+            }
+
+            if (hasTargetCountryData) {
+                comparisonData.countrySalaryComparison.targetCountry.topCities.forEach(city => {
+                    if (!Array.isArray(city.rolesSalaries)) {
+                        console.warn(`Invalid rolesSalaries in target country city ${city.city}`);
+                        city.rolesSalaries = [];
+                        rolesSalariesValid = false;
+                    }
+                });
+            }
+
+            // Check if the response is incomplete or has metadata indicating it's partial
+            const isFallbackResponse =
+                (!hasCurrentCountryData && !hasTargetCountryData) ||
+                !hasRoleComparisonData ||
+                !hasSalaryExpectationAnalysis ||
+                !rolesSalariesValid ||
+                comparisonData._meta?.isComplete === false;
+
+            if (isFallbackResponse) {
+                console.warn('Returning partial comparison data due to incomplete or malformed data');
+
+                // Add metadata to indicate partial data
+                return res.status(207).json({
+                    ...comparisonData,
+                    _meta: {
+                        status: 'partial',
+                        message: 'Some data could not be generated. The available data is displayed below.',
+                        hasCurrentCountryData,
+                        hasTargetCountryData,
+                        hasRoleComparisonData,
+                        hasSalaryExpectationAnalysis,
+                        rolesSalariesValid
+                    }
+                });
+            }
+
+            console.log('Comparison data generated successfully');
+            res.json(comparisonData);
+        } catch (error) {
+            console.error('Error in AI comparison generation:', error);
+            return res.status(500).json({
+                message: 'Failed to generate comparison data from Gemini AI',
+                error: error.message,
+                errorDetails: error.stack
+            });
+        }
+    } catch (error) {
+        console.error('Error generating comparison data:', error);
+        res.status(500).json({
+            message: 'Failed to generate comparison data',
+            error: error.message,
+            errorDetails: error.stack
+        });
     }
 };
 

@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from 'dotenv';
+import { parseJSON } from '../utils/jsonParser.js';
 
 dotenv.config();
 
@@ -20,6 +21,363 @@ const model = genAI.getGenerativeModel({
   }
 });
 
+export const generateComparisonInsights = async (userData) => {
+  try {
+    console.log("Generating comparison insights for:", userData);
+
+    // Validate API key
+    if (!GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY is not set or invalid");
+      throw new Error("API key configuration error");
+    }
+
+    // Extract user data with defaults
+    const industry = userData.industry || "Software Development";
+    const experience = userData.experience || 1;
+    const skills = userData.skills || [];
+    const currentCountry = userData.currentCountry || "US";
+    const targetCountry = userData.targetCountry || "US";
+    const currentRole = userData.currentRole || "Software Developer";
+    const targetRole = userData.targetRole || "Software Developer";
+    const salaryExpectation = userData.salaryExpectation || "";
+
+    console.log("Processed comparison data:", {
+      industry,
+      experience,
+      skills: Array.isArray(skills) ? skills : [],
+      currentCountry,
+      targetCountry,
+      currentRole,
+      targetRole,
+      salaryExpectation
+    });
+
+    // Create a structured prompt for comparison data with stronger emphasis on complete JSON
+    const currency = "USD"; // Always use USD for currency
+
+    const prompt = `Generate a detailed comparison between the user's current situation and their target situation in the ${industry} industry.
+
+    Current situation:
+    - Country: ${currentCountry}
+    - Role: ${currentRole}
+    - Experience: ${experience} years
+    - Skills: ${Array.isArray(skills) ? skills.join(", ") : skills}
+
+    Target situation:
+    - Country: ${targetCountry}
+    - Role: ${targetRole}
+    ${salaryExpectation ? `- Salary Expectation: ${salaryExpectation} ${currency}` : ''}
+
+    CRITICAL INSTRUCTIONS FOR JSON FORMATTING:
+    1. You MUST return ONLY valid, complete JSON with NO additional text, notes, or markdown formatting.
+    2. DO NOT include any text before or after the JSON.
+    3. DO NOT use markdown code blocks or triple backticks.
+    4. ENSURE all fields are properly filled with realistic data.
+    5. ENSURE all arrays are properly closed with square brackets.
+    6. ENSURE all objects are properly closed with curly braces.
+    7. ENSURE all strings are properly quoted with double quotes.
+    8. ENSURE all property names are properly quoted with double quotes.
+    9. DO NOT use trailing commas in arrays or objects.
+    10. ENSURE the JSON is properly nested and all brackets match.
+
+    Provide the comparison data in EXACTLY the following JSON format:
+
+    {
+      "countrySalaryComparison": {
+        "currentCountry": {
+          "name": "${currentCountry}",
+          "topCities": [
+            {
+              "city": "string",
+              "avgSalary": number,
+              "salaryTrend": "Increasing" | "Stable" | "Decreasing",
+              "demandLevel": "High" | "Medium" | "Low",
+              "rolesSalaries": [
+                {
+                  "role": "string",
+                  "minSalary": number,
+                  "medianSalary": number,
+                  "maxSalary": number,
+                  "location": "string"
+                }
+              ]
+            }
+          ]
+        },
+        "targetCountry": {
+          "name": "${targetCountry}",
+          "topCities": [
+            {
+              "city": "string",
+              "avgSalary": number,
+              "salaryTrend": "Increasing" | "Stable" | "Decreasing",
+              "demandLevel": "High" | "Medium" | "Low",
+              "rolesSalaries": [
+                {
+                  "role": "string",
+                  "minSalary": number,
+                  "medianSalary": number,
+                  "maxSalary": number,
+                  "location": "string"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "roleComparison": {
+        "currentRole": {
+          "title": "${currentRole}",
+          "requiredSkills": ["string"],
+          "avgSalary": number,
+          "growthOutlook": "Positive" | "Neutral" | "Negative",
+          "demandLevel": "High" | "Medium" | "Low"
+        },
+        "targetRole": {
+          "title": "${targetRole}",
+          "requiredSkills": ["string"],
+          "avgSalary": number,
+          "growthOutlook": "Positive" | "Neutral" | "Negative",
+          "demandLevel": "High" | "Medium" | "Low"
+        },
+        "skillGaps": ["string"],
+        "transferableSkills": ["string"]
+      },
+      "salaryExpectationAnalysis": {
+        "isRealistic": boolean,
+        "differenceFromMedian": number,
+        "percentile": number,
+        "recommendation": "string"
+      }
+    }
+
+    For each country, provide data for exactly the top 3 cities with the highest demand for ${industry} professionals.
+    For each city, include at least 5 common job roles with their salary ranges (min, median, max).
+    Include at least 5 required skills for each role.
+    Include at least 3 skill gaps and 3 transferable skills in the role comparison.
+    Provide realistic salary data based on current market conditions.
+    ${salaryExpectation ? `Analyze if the user's salary expectation of ${salaryExpectation} ${currency} is realistic for the target role in the target country.` : ''}
+
+    FINAL REMINDER:
+    1. Return ONLY the JSON with NO additional text or explanations.
+    2. Verify that all arrays and objects are properly closed.
+    3. Ensure the JSON is complete and valid before returning.
+    4. Do not truncate or omit any part of the required structure.
+    `;
+
+    // Maximum number of retries
+    const MAX_RETRIES = 3;
+    let attempts = 0;
+    let data = null;
+    let isComplete = false;
+
+    // Keep trying until we get complete data or reach max retries
+    while (attempts < MAX_RETRIES && !isComplete) {
+      attempts++;
+      console.log(`Attempt ${attempts} of ${MAX_RETRIES} to get complete comparison data...`);
+
+      try {
+        // Call Gemini API
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const text = response.text();
+
+        console.log(`Gemini comparison response received (attempt ${attempts})`);
+        console.log("Raw response length:", text.length);
+        console.log("Raw response preview:", text.substring(0, 200) + (text.length > 200 ? "..." : ""));
+
+        // Parse the JSON response
+        data = parseJSON(text, { verbose: true });
+        console.log("Successfully parsed comparison JSON data");
+
+        // Validate the data to ensure it's complete
+        const validationResult = validateComparisonData(data, currentCountry, targetCountry, currentRole, targetRole);
+
+        if (validationResult.isComplete) {
+          console.log("Received complete comparison data");
+          isComplete = true;
+        } else {
+          console.log("Incomplete data detected:", validationResult.missingFields);
+          // Wait a moment before retrying to avoid rate limits
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      } catch (error) {
+        console.error(`Error in attempt ${attempts}:`, error.message);
+        // Wait a moment before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+
+    // If we've exhausted all retries and still don't have complete data, return partial data with metadata
+    if (!isComplete) {
+      console.log("Returning partial comparison data after multiple attempts");
+
+      // Initialize missing sections with empty structures to prevent frontend errors
+      if (!data.roleComparison) {
+        data.roleComparison = {
+          currentRole: { title: currentRole, requiredSkills: [], avgSalary: 0, growthOutlook: "Neutral", demandLevel: "Medium" },
+          targetRole: { title: targetRole, requiredSkills: [], avgSalary: 0, growthOutlook: "Neutral", demandLevel: "Medium" },
+          skillGaps: [],
+          transferableSkills: []
+        };
+      }
+
+      if (!data.salaryExpectationAnalysis) {
+        data.salaryExpectationAnalysis = {
+          isRealistic: true,
+          differenceFromMedian: 0,
+          percentile: 50,
+          recommendation: "No salary analysis available. Please try again later."
+        };
+      }
+    }
+
+    // Add metadata about the response
+    data._meta = {
+      generatedAt: new Date().toISOString(),
+      source: "Gemini AI",
+      attempts: attempts,
+      isComplete: isComplete
+    };
+
+    return data;
+  } catch (error) {
+    console.error("Error in generateComparisonInsights:", error);
+    throw error;
+  }
+};
+
+// Helper function to validate if the comparison data is complete
+function validateComparisonData(data, currentCountry, targetCountry, currentRole, targetRole) {
+  if (!data) {
+    return {
+      isComplete: false,
+      missingFields: ['entire data structure']
+    };
+  }
+
+  const missingFields = [];
+
+  // Check countrySalaryComparison structure
+  if (!data.countrySalaryComparison) {
+    missingFields.push('countrySalaryComparison');
+  } else {
+    // Check currentCountry
+    if (!data.countrySalaryComparison.currentCountry) {
+      missingFields.push('countrySalaryComparison.currentCountry');
+    } else {
+      if (data.countrySalaryComparison.currentCountry.name !== currentCountry) {
+        missingFields.push(`countrySalaryComparison.currentCountry.name (expected: ${currentCountry})`);
+      }
+
+      if (!Array.isArray(data.countrySalaryComparison.currentCountry.topCities) ||
+          data.countrySalaryComparison.currentCountry.topCities.length === 0) {
+        missingFields.push('countrySalaryComparison.currentCountry.topCities');
+      } else {
+        // Validate each city in topCities has a valid rolesSalaries array
+        data.countrySalaryComparison.currentCountry.topCities.forEach((city, index) => {
+          if (!city || typeof city !== 'object') {
+            missingFields.push(`countrySalaryComparison.currentCountry.topCities[${index}] is not a valid object`);
+          } else if (!Array.isArray(city.rolesSalaries)) {
+            missingFields.push(`countrySalaryComparison.currentCountry.topCities[${index}].rolesSalaries is not an array`);
+            // Initialize it as an empty array to prevent errors
+            city.rolesSalaries = [];
+          }
+        });
+      }
+    }
+
+    // Check targetCountry
+    if (!data.countrySalaryComparison.targetCountry) {
+      missingFields.push('countrySalaryComparison.targetCountry');
+    } else {
+      if (data.countrySalaryComparison.targetCountry.name !== targetCountry) {
+        missingFields.push(`countrySalaryComparison.targetCountry.name (expected: ${targetCountry})`);
+      }
+
+      if (!Array.isArray(data.countrySalaryComparison.targetCountry.topCities) ||
+          data.countrySalaryComparison.targetCountry.topCities.length === 0) {
+        missingFields.push('countrySalaryComparison.targetCountry.topCities');
+      } else {
+        // Validate each city in topCities has a valid rolesSalaries array
+        data.countrySalaryComparison.targetCountry.topCities.forEach((city, index) => {
+          if (!city || typeof city !== 'object') {
+            missingFields.push(`countrySalaryComparison.targetCountry.topCities[${index}] is not a valid object`);
+          } else if (!Array.isArray(city.rolesSalaries)) {
+            missingFields.push(`countrySalaryComparison.targetCountry.topCities[${index}].rolesSalaries is not an array`);
+            // Initialize it as an empty array to prevent errors
+            city.rolesSalaries = [];
+          }
+        });
+      }
+    }
+  }
+
+  // Check roleComparison structure
+  if (!data.roleComparison) {
+    missingFields.push('roleComparison');
+  } else {
+    // Check currentRole
+    if (!data.roleComparison.currentRole) {
+      missingFields.push('roleComparison.currentRole');
+    } else {
+      if (data.roleComparison.currentRole.title !== currentRole) {
+        missingFields.push(`roleComparison.currentRole.title (expected: ${currentRole})`);
+      }
+
+      if (!Array.isArray(data.roleComparison.currentRole.requiredSkills) ||
+          data.roleComparison.currentRole.requiredSkills.length === 0) {
+        missingFields.push('roleComparison.currentRole.requiredSkills');
+      }
+    }
+
+    // Check targetRole
+    if (!data.roleComparison.targetRole) {
+      missingFields.push('roleComparison.targetRole');
+    } else {
+      if (data.roleComparison.targetRole.title !== targetRole) {
+        missingFields.push(`roleComparison.targetRole.title (expected: ${targetRole})`);
+      }
+
+      if (!Array.isArray(data.roleComparison.targetRole.requiredSkills) ||
+          data.roleComparison.targetRole.requiredSkills.length === 0) {
+        missingFields.push('roleComparison.targetRole.requiredSkills');
+      }
+    }
+
+    // Check skill arrays
+    if (!Array.isArray(data.roleComparison.skillGaps)) {
+      missingFields.push('roleComparison.skillGaps');
+    }
+
+    if (!Array.isArray(data.roleComparison.transferableSkills)) {
+      missingFields.push('roleComparison.transferableSkills');
+    }
+  }
+
+  // Check salaryExpectationAnalysis structure
+  if (!data.salaryExpectationAnalysis) {
+    missingFields.push('salaryExpectationAnalysis');
+  } else {
+    if (typeof data.salaryExpectationAnalysis.isRealistic !== 'boolean') {
+      missingFields.push('salaryExpectationAnalysis.isRealistic');
+    }
+
+    if (typeof data.salaryExpectationAnalysis.percentile !== 'number') {
+      missingFields.push('salaryExpectationAnalysis.percentile');
+    }
+
+    if (!data.salaryExpectationAnalysis.recommendation) {
+      missingFields.push('salaryExpectationAnalysis.recommendation');
+    }
+  }
+
+  return {
+    isComplete: missingFields.length === 0,
+    missingFields
+  };
+}
+
 export const generateIndustryInsights = async (userData) => {
   try {
     console.log("Generating insights for:", userData);
@@ -36,7 +394,6 @@ export const generateIndustryInsights = async (userData) => {
     const skills = userData.skills || [];
     const country = userData.country || "US";
     const salaryExpectation = userData.salaryExpectation || "";
-    const preferredRoles = userData.preferredRoles || [];
     const isIndianData = userData.isIndianData || (country && country.toLowerCase().includes('india'));
 
     console.log("Processed user data:", {
@@ -45,15 +402,28 @@ export const generateIndustryInsights = async (userData) => {
       skills: Array.isArray(skills) ? skills : [],
       country,
       salaryExpectation,
-      preferredRoles: Array.isArray(preferredRoles) ? preferredRoles : [],
       isIndianData
     });
 
     // Create a more structured prompt with explicit instructions
     const currency = "USD"; // Always use USD for currency
-    
 
-    const prompt = `Analyze the current state of the ${industry} industry${country} and provide insights in ONLY the following JSON format without any additional notes or explanations:
+
+    const prompt = `Analyze the current state of the ${industry} industry in ${country} and provide insights.
+
+    CRITICAL INSTRUCTIONS FOR JSON FORMATTING:
+    1. You MUST return ONLY valid, complete JSON with NO additional text, notes, or markdown formatting.
+    2. DO NOT include any text before or after the JSON.
+    3. DO NOT use markdown code blocks or triple backticks.
+    4. ENSURE all fields are properly filled with realistic data.
+    5. ENSURE all arrays are properly closed with square brackets.
+    6. ENSURE all objects are properly closed with curly braces.
+    7. ENSURE all strings are properly quoted with double quotes.
+    8. ENSURE all property names are properly quoted with double quotes.
+    9. DO NOT use trailing commas in arrays or objects.
+    10. ENSURE the JSON is properly nested and all brackets match.
+
+    Provide the insights in EXACTLY the following JSON format:
 
     {
       "growthRate": number,
@@ -110,20 +480,25 @@ export const generateIndustryInsights = async (userData) => {
       ]
     }
 
-    IMPORTANT: Return ONLY the JSON. No additional text, notes, or markdown formatting.
-    For citySalaryData, provide data for exactly the top 3 cities in ${country} with the highest demand for ${industry} professionals according to the ${experience}.
-    For each city, include at least 5 common job roles with their salary ranges (min, median, max).
-    Growth rate should be a percentage.
-    Include at least 5 skills in topSkills and marketDemand.
-    Include at least 3 companies in topCompanies.
-    Include at least 3 courses in recommendedCourses.
-    Include at least 3 career paths in careerPathInsights.
-    Include at least 3 trends in emergingTrends.
-    Include at least 3 quick insights in quickInsights.
-    Include at least 3 next actions in nextActions.
-    ${preferredRoles && preferredRoles.length > 0 ? `Focus on these preferred roles: ${preferredRoles.join(', ')}.` : ''}
-    ${salaryExpectation ? `Consider the user's salary expectation of ${salaryExpectation} ${currency} when providing insights.` : ''}
-    PLEASE RETURN ONLY THE JSON FORMAT WITHOUT ANY ADDITIONAL TEXT, NOTES, OR EXPLANATIONS.
+    CONTENT REQUIREMENTS:
+    - For citySalaryData, provide data for exactly the top 3 cities in ${country} with the highest demand for ${industry} professionals according to the ${experience}.
+    - For each city, include at least 5 common job roles with their salary ranges (min, median, max).
+    - Growth rate should be a percentage.
+    - Include at least 5 skills in topSkills and marketDemand.
+    - Include at least 3 companies in topCompanies.
+    - Include at least 3 courses in recommendedCourses.
+    - Include at least 3 career paths in careerPathInsights.
+    - Include at least 3 trends in emergingTrends.
+    - Include at least 3 quick insights in quickInsights.
+    - Include at least 3 next actions in nextActions.
+    ${salaryExpectation ? `- Consider the user's salary expectation of ${salaryExpectation} ${currency} when providing insights.` : ''}
+
+    FINAL REMINDER:
+    1. Return ONLY the JSON with NO additional text or explanations.
+    2. Verify that all arrays and objects are properly closed.
+    3. Ensure the JSON is complete and valid before returning.
+    4. Do not truncate or omit any part of the required structure.
+    5. Double-check that all rolesSalaries arrays are properly closed with square brackets.
   `;
 
     console.log("Sending prompt to Gemini");
@@ -142,480 +517,35 @@ export const generateIndustryInsights = async (userData) => {
         console.log("Raw response length:", text.length);
         console.log("Raw response preview:", text.substring(0, 200) + (text.length > 200 ? "..." : ""));
 
-        // Preprocessing: Clean up the response text before attempting to parse
-        const preprocessResponse = (rawText) => {
-          // Remove any markdown code block markers
-          let cleaned = rawText.replace(/```json/g, '').replace(/```/g, '');
-
-          // Remove any explanatory text before the JSON
-          const jsonStartIndex = cleaned.indexOf('{');
-          if (jsonStartIndex > 0) {
-            const prefixText = cleaned.substring(0, jsonStartIndex).trim();
-            if (prefixText) {
-              console.log("Removing prefix text before JSON:", prefixText.substring(0, 50) + (prefixText.length > 50 ? "..." : ""));
-              cleaned = cleaned.substring(jsonStartIndex);
-            }
-          }
-
-          // Remove any explanatory text after the JSON
-          const jsonEndIndex = cleaned.lastIndexOf('}');
-          if (jsonEndIndex !== -1 && jsonEndIndex < cleaned.length - 1) {
-            const suffixText = cleaned.substring(jsonEndIndex + 1).trim();
-            if (suffixText) {
-              console.log("Removing suffix text after JSON:", suffixText.substring(0, 50) + (suffixText.length > 50 ? "..." : ""));
-              cleaned = cleaned.substring(0, jsonEndIndex + 1);
-            }
-          }
-
-          // Fix common JSON syntax issues
-          cleaned = cleaned
-            // Fix trailing commas in arrays and objects
-            .replace(/,\s*]/g, ']')
-            .replace(/,\s*}/g, '}')
-            // Fix missing quotes around property names
-            .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')
-            // Fix unquoted string values
-            .replace(/:\s*([^",{[\]}0-9true\s][^,{[\]}]*[^",{[\]}0-9\s])(\s*[,}])/g, ':"$1"$2')
-            // Fix single quotes
-            .replace(/:\s*'([^']*)'/g, ':"$1"')
-            // Fix undefined and NaN values
-            .replace(/:\s*undefined/g, ':null')
-            .replace(/:\s*NaN/g, ':0');
-
-          return cleaned;
+        // Define fallback data structure for industry insights
+        const fallbackData = {
+          growthRate: 10,
+          demandLevel: "Medium",
+          topSkills: [],
+          marketOutlook: "Data unavailable due to parsing error",
+          industryOverview: "Industry overview information not available due to parsing error.",
+          marketDemand: [],
+          expectedSalaryRange: { min: 80000, max: 120000, currency: "USD" },
+          citySalaryData: [],
+          skillBasedBoosts: [],
+          topCompanies: [],
+          recommendedCourses: [],
+          careerPathInsights: [],
+          emergingTrends: [],
+          quickInsights: []
         };
 
-        // First preprocessing pass
-        let cleanedText = preprocessResponse(text);
+        // Use the robust JSON parser with verbose logging and fallback data
+        let data = parseJSON(text, {
+          verbose: true,
+          fallbackData
+        });
 
-        // Function to extract and fix JSON from text
-        const extractAndFixJSON = (inputText) => {
-          // Store parsing errors for better diagnostics
-          const errors = [];
-
-          // Clean up the input text first
-          let cleanedInput = inputText
-            .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
-            .replace(/,\s*}/g, '}')  // Remove trailing commas in objects
-            .replace(/\[\s*,/g, '[') // Remove leading commas in arrays
-            .replace(/{\s*,/g, '{'); // Remove leading commas in objects
-
-          // Fix potential issues with arrays containing mixed quotes
-          cleanedInput = cleanedInput.replace(/"([^"]*)'([^']*)'([^"]*)"/g, '"$1\\"$2\\"$3"');
-
-          // Fix potential issues with unquoted property names
-          cleanedInput = cleanedInput.replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');
-
-          // Method 1: Try direct parsing first with cleaned input
-          try {
-            return JSON.parse(cleanedInput);
-          } catch (directParseError) {
-            errors.push({ method: "direct", error: directParseError.message });
-            console.log("Direct JSON parse failed:", directParseError.message);
-          }
-
-          // Method 2: Extract JSON using balanced braces approach
-          try {
-            // Find the outermost JSON object using balanced braces
-            let depth = 0;
-            let start = -1;
-            let end = -1;
-
-            for (let i = 0; i < inputText.length; i++) {
-              if (inputText[i] === '{') {
-                if (depth === 0) {
-                  start = i;
-                }
-                depth++;
-              } else if (inputText[i] === '}') {
-                depth--;
-                if (depth === 0) {
-                  end = i + 1;
-                  break;
-                }
-              }
-            }
-
-            if (start !== -1 && end !== -1) {
-              const jsonStr = inputText.substring(start, end);
-              console.log("Extracted JSON using balanced braces");
-              try {
-                return JSON.parse(jsonStr);
-              } catch (balancedError) {
-                errors.push({ method: "balanced", error: balancedError.message, json: jsonStr.substring(0, 100) + "..." });
-                console.log("Balanced braces extraction failed:", balancedError.message);
-              }
-            }
-          } catch (extractError) {
-            errors.push({ method: "extraction", error: extractError.message });
-            console.log("JSON extraction error:", extractError.message);
-          }
-
-          // Method 3: Progressive JSON repair
-          try {
-            // Find the JSON-like structure
-            const jsonStart = inputText.indexOf('{');
-            const jsonEnd = inputText.lastIndexOf('}') + 1;
-
-            if (jsonStart >= 0 && jsonEnd > jsonStart) {
-              let jsonStr = inputText.substring(jsonStart, jsonEnd);
-
-              // Step 1: Fix property names (ensure they have quotes)
-              jsonStr = jsonStr.replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');
-
-              // Step 2: Fix trailing commas in arrays and objects
-              jsonStr = jsonStr.replace(/,(\s*[\]}])/g, '$1');
-
-              // Step 3: Handle special characters in string values
-              // First, identify all string values
-              const stringValueRegex = /"([^"\\]*(\\.[^"\\]*)*)"(\s*:)/g;
-              jsonStr = jsonStr.replace(stringValueRegex, (match) => {
-                // Keep property names as they are
-                return match;
-              });
-
-              // Then handle string values (not property names)
-              const stringLiteralRegex = /:\s*"([^"\\]*(\\.[^"\\]*)*)"/g;
-              jsonStr = jsonStr.replace(stringLiteralRegex, (match) => {
-                // Escape any unescaped quotes, newlines, etc.
-                return match
-                  .replace(/\\n/g, '\\\\n')
-                  .replace(/\\r/g, '\\\\r')
-                  .replace(/\\t/g, '\\\\t')
-                  .replace(/\\/g, '\\\\')
-                  .replace(/\\\\"/g, '\\"'); // Fix double escaping
-              });
-
-              // Step 4: Fix common syntax errors
-              jsonStr = jsonStr
-                // Fix missing quotes around string values
-                .replace(/:\s*([^",\{\[\]\}\d][^,\{\[\]\}]*[^",\{\[\]\}\d])(\s*[,\}])/g, ':"$1"$2')
-                // Fix single quotes used instead of double quotes
-                .replace(/'/g, '"')
-                // Fix unquoted property values that should be strings
-                .replace(/:\s*(true|false|null|undefined)(\s*[,\}])/g, ':"$1"$2');
-
-              console.log("Attempting to parse with progressive JSON repair");
-              try {
-                return JSON.parse(jsonStr);
-              } catch (repairError) {
-                errors.push({ method: "progressive", error: repairError.message, json: jsonStr.substring(0, 100) + "..." });
-                console.log("Progressive repair failed:", repairError.message);
-              }
-            }
-          } catch (repairError) {
-            errors.push({ method: "repair", error: repairError.message });
-            console.log("JSON repair error:", repairError.message);
-          }
-
-          // Method 4: Handle the industryOverview field specifically
-          try {
-            // Find the JSON-like structure
-            const jsonStart = inputText.indexOf('{');
-            const jsonEnd = inputText.lastIndexOf('}') + 1;
-
-            if (jsonStart >= 0 && jsonEnd > jsonStart) {
-              let jsonStr = inputText.substring(jsonStart, jsonEnd);
-
-              // Look for the industryOverview field
-              const overviewMatch = jsonStr.match(/"industryOverview"\s*:\s*"([^"\\]*(\\.[^"\\]*)*)"/);
-
-              if (overviewMatch) {
-                // Extract the problematic field
-                const originalOverview = overviewMatch[0];
-                const overviewContent = overviewMatch[1];
-
-                // Create a sanitized version
-                const sanitizedOverview = `"industryOverview": "${overviewContent
-                  .replace(/"/g, '\\"')
-                  .replace(/\n/g, '\\n')
-                  .replace(/\r/g, '\\r')
-                  .replace(/\t/g, '\\t')}"`;
-
-                // Replace in the JSON string
-                jsonStr = jsonStr.replace(originalOverview, sanitizedOverview);
-
-                console.log("Attempting to parse with sanitized industryOverview field");
-                try {
-                  return JSON.parse(jsonStr);
-                } catch (overviewError) {
-                  errors.push({ method: "overview", error: overviewError.message });
-                  console.log("industryOverview sanitization failed:", overviewError.message);
-                }
-              }
-            }
-          } catch (fieldError) {
-            errors.push({ method: "field", error: fieldError.message });
-            console.log("Field-specific repair error:", fieldError.message);
-          }
-
-          // Method 5: Last resort - use a more aggressive approach
-          try {
-            // Extract what looks like a JSON object
-            const jsonStart = inputText.indexOf('{');
-            const jsonEnd = inputText.lastIndexOf('}') + 1;
-
-            if (jsonStart >= 0 && jsonEnd > jsonStart) {
-              let jsonStr = inputText.substring(jsonStart, jsonEnd);
-
-              // Aggressively fix the JSON by handling one field at a time
-              const fieldRegex = /"(\w+)"\s*:\s*([^,}]+)([,}])/g;
-              jsonStr = jsonStr.replace(fieldRegex, (_, fieldName, fieldValue, delimiter) => {
-                // Try to fix the field value based on expected type
-                let fixedValue = fieldValue.trim();
-
-                // Handle string values
-                if (fixedValue.startsWith('"') && fixedValue.endsWith('"')) {
-                  // Already a string, make sure internal quotes are escaped
-                  fixedValue = `"${fixedValue.slice(1, -1).replace(/"/g, '\\"')}"`;
-                }
-                // Handle arrays
-                else if (fixedValue.startsWith('[') && fixedValue.endsWith(']')) {
-                  // Process array to ensure all elements are properly formatted
-                  try {
-                    // Extract the array content
-                    const arrayContent = fixedValue.slice(1, -1).trim();
-
-                    // If empty array, return as is
-                    if (!arrayContent) {
-                      // Empty array, leave as is
-                    } else {
-                      // Split by commas, but respect nested structures
-                      let elements = [];
-                      let currentElement = '';
-                      let depth = 0;
-
-                      for (let i = 0; i < arrayContent.length; i++) {
-                        const char = arrayContent[i];
-
-                        if (char === '{' || char === '[') {
-                          depth++;
-                          currentElement += char;
-                        } else if (char === '}' || char === ']') {
-                          depth--;
-                          currentElement += char;
-                        } else if (char === ',' && depth === 0) {
-                          // End of element
-                          elements.push(currentElement.trim());
-                          currentElement = '';
-                        } else {
-                          currentElement += char;
-                        }
-                      }
-
-                      // Add the last element
-                      if (currentElement.trim()) {
-                        elements.push(currentElement.trim());
-                      }
-
-                      // Process each element
-                      elements = elements.map(element => {
-                        element = element.trim();
-
-                        // If element is already a string with quotes, leave it
-                        if ((element.startsWith('"') && element.endsWith('"')) ||
-                            (element.startsWith("'") && element.endsWith("'"))) {
-                          // Ensure consistent quote usage (double quotes)
-                          if (element.startsWith("'")) {
-                            element = `"${element.slice(1, -1).replace(/"/g, '\\"')}"`;
-                          }
-                          return element;
-                        }
-
-                        // If element is an object or array, leave it
-                        if ((element.startsWith('{') && element.endsWith('}')) ||
-                            (element.startsWith('[') && element.endsWith(']'))) {
-                          return element;
-                        }
-
-                        // If element is a number, leave it
-                        if (!isNaN(Number(element))) {
-                          return element;
-                        }
-
-                        // If element is a boolean or null, leave it
-                        if (element === 'true' || element === 'false' || element === 'null') {
-                          return element;
-                        }
-
-                        // Otherwise, treat as a string and add quotes
-                        return `"${element.replace(/"/g, '\\"')}"`;
-                      });
-
-                      // Reconstruct the array
-                      fixedValue = `[${elements.join(',')}]`;
-                    }
-                  } catch (arrayError) {
-                    console.warn("Error processing array:", arrayError.message);
-                    // If processing fails, leave as is
-                  }
-                }
-                // Handle objects
-                else if (fixedValue.startsWith('{') && fixedValue.endsWith('}')) {
-                  // Already an object, leave as is
-                }
-                // Handle numbers
-                else if (!isNaN(Number(fixedValue))) {
-                  // Already a number, leave as is
-                }
-                // Handle booleans and null
-                else if (fixedValue === 'true' || fixedValue === 'false' || fixedValue === 'null') {
-                  // Already a boolean or null, leave as is
-                }
-                // Everything else should be a string
-                else {
-                  fixedValue = `"${fixedValue.replace(/"/g, '\\"')}"`;
-                }
-
-                return `"${fieldName}": ${fixedValue}${delimiter}`;
-              });
-
-              console.log("Attempting to parse with aggressive field-by-field repair");
-              try {
-                return JSON.parse(jsonStr);
-              } catch (aggressiveError) {
-                errors.push({ method: "aggressive", error: aggressiveError.message });
-                console.log("Aggressive repair failed:", aggressiveError.message);
-              }
-            }
-          } catch (lastError) {
-            errors.push({ method: "last-resort", error: lastError.message });
-            console.log("Last resort repair error:", lastError.message);
-          }
-
-          // If all methods fail, throw an error with detailed diagnostics
-          const errorDetails = errors.map(e => `${e.method}: ${e.error}`).join('; ');
-          throw new Error(`JSON parsing failed after multiple attempts: ${errorDetails}`);
-        };
-
-        // Try to extract and parse JSON
-        let data;
-        try {
-          data = extractAndFixJSON(cleanedText);
-          console.log("Successfully parsed JSON from response");
-        } catch (parseError) {
-          console.error("Initial JSON parsing failed, attempting emergency repair:", parseError.message);
-
-          // Emergency repair for common array issues
-          try {
-            // First, try to identify and fix the specific issue with quickInsights
-            // This is a common problem area based on the error messages
-            const quickInsightsPattern = /"quickInsights"\s*:\s*\[(.*?)(?:\],|\}|$)/s;
-            let fixedText = cleanedText;
-
-            const quickInsightsMatch = quickInsightsPattern.exec(cleanedText);
-            if (quickInsightsMatch) {
-              const [fullMatch, arrayContent, endChar] = quickInsightsMatch;
-              console.log("Found quickInsights array, attempting to fix");
-
-              // If the array content is truncated (doesn't end with ] or }), force it to be an empty array
-              if (!arrayContent.trim().endsWith(']') && !arrayContent.trim().endsWith('}')) {
-                console.log("quickInsights array appears to be truncated, replacing with empty array");
-                fixedText = fixedText.replace(fullMatch, '"quickInsights": []' + (endChar === '],' ? ',' : '}'));
-              } else {
-                // Parse the array content to find valid JSON objects
-                const itemRegex = /{[^{}]*}/g;
-                const validItems = [];
-                let itemMatch;
-
-                while ((itemMatch = itemRegex.exec(arrayContent)) !== null) {
-                  try {
-                    // Try to parse each item to ensure it's valid
-                    const item = JSON.parse(itemMatch[0]);
-                    if (item && typeof item === 'object' && (item.title || item.name)) {
-                      validItems.push(itemMatch[0]);
-                    }
-                  } catch (e) {
-                    // Log the error and skip invalid items
-                    console.warn("Skipping invalid quickInsights item:", itemMatch[0], "Error:", e.message);
-
-                    // Try to fix common JSON issues in the item
-                    try {
-                      const fixedItem = itemMatch[0]
-                        .replace(/'/g, '"')
-                        .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')
-                        .replace(/:\s*([^",{[\]}d][^,{[\]}]*[^",{[\]}d])(\s*[,}])/g, ':"$1"$2');
-
-                      const parsedItem = JSON.parse(fixedItem);
-                      if (parsedItem && typeof parsedItem === 'object' && (parsedItem.title || parsedItem.name)) {
-                        validItems.push(fixedItem);
-                        console.log("Successfully fixed and added item:", fixedItem);
-                      }
-                    } catch (fixError) {
-                      // If we can't fix it, just skip it
-                      console.warn("Could not fix item, skipping:", fixError.message);
-                    }
-                  }
-                }
-
-                // Replace the problematic array with only valid items
-                const fixedArray = validItems.join(',');
-                const replacement = `"quickInsights": [${fixedArray}]${endChar === '],' ? ',' : '}'}`;
-                fixedText = fixedText.replace(fullMatch, replacement);
-              }
-            }
-
-            // Now look for other array patterns that might be causing issues
-            const arrayPattern = /"([^"]+)":\s*\[(.*?)\]/gs;
-
-            // Find all arrays in the JSON
-            let match;
-            while ((match = arrayPattern.exec(cleanedText)) !== null) {
-              const [fullMatch, arrayName, arrayContent] = match;
-
-              // Skip quickInsights as we already handled it
-              if (arrayName === 'quickInsights') continue;
-
-              // Check if this array might be problematic (contains mixed quotes, missing commas, etc.)
-              if (arrayContent.includes("'") ||
-                  /,\s*,/.test(arrayContent) ||
-                  /\[\s*,/.test(arrayContent) ||
-                  /,\s*\]/.test(arrayContent) ||
-                  arrayContent.includes("undefined") ||
-                  arrayContent.includes("NaN")) {
-
-                console.log(`Potentially problematic array found: ${arrayName}`);
-
-                // Fix the array content
-                let fixedArray = arrayContent
-                  .replace(/'/g, '"')                // Replace single quotes with double quotes
-                  .replace(/,\s*,/g, ',')           // Fix double commas
-                  .replace(/\[\s*,/g, '[')          // Remove leading commas in arrays
-                  .replace(/,\s*\]/g, ']')          // Remove trailing commas in arrays
-                  .replace(/,(\s*[}\]])/g, '$1')    // Remove trailing commas before closing brackets
-                  .replace(/undefined/g, '"undefined"') // Quote undefined values
-                  .replace(/NaN/g, '0');            // Replace NaN with 0
-
-                // Replace the problematic array in the JSON
-                fixedText = fixedText.replace(fullMatch, `"${arrayName}": [${fixedArray}]`);
-              }
-            }
-
-            // Try parsing the fixed text
-            data = JSON.parse(fixedText);
-            console.log("Emergency JSON repair successful");
-          } catch (emergencyError) {
-            console.error("Emergency repair failed:", emergencyError.message);
-
-            // Last resort: create a minimal valid object with empty arrays
-            data = {
-              growthRate: 10,
-              demandLevel: "Medium",
-              topSkills: [],
-              marketOutlook: "Data unavailable due to parsing error",
-              industryOverview: "Industry overview information not available due to parsing error.",
-              marketDemand: [],
-              expectedSalaryRange: { min: 80000, max: 120000, currency: "USD" },
-              citySalaryData: [],
-              skillBasedBoosts: [],
-              topCompanies: [],
-              recommendedCourses: [],
-              careerPathInsights: [],
-              emergingTrends: [],
-              quickInsights: []
-            };
-            console.warn("Using fallback data structure due to parsing failures");
-          }
+        // Check if we got the fallback data (parsing failed)
+        if (data === fallbackData) {
+          console.log("JSON parsing failed, using fallback industry insights data structure");
+        } else {
+          console.log("Successfully parsed industry insights JSON data");
         }
 
         // Validate and sanitize the data
@@ -624,351 +554,148 @@ export const generateIndustryInsights = async (userData) => {
         }
 
         // Post-processing: Handle specific fields that might need additional processing
-        const postProcessData = (data) => {
-          // Handle industryOverview field - ensure it's properly formatted
-          if (data.industryOverview) {
-            // If it's not a string, convert it to a string
-            if (typeof data.industryOverview !== 'string') {
-              console.warn("industryOverview is not a string, converting to string");
-              data.industryOverview = String(data.industryOverview);
-            }
 
-            try {
-              // Clean up any special characters or formatting issues
-              data.industryOverview = data.industryOverview
-                .replace(/\\n/g, '\n') // Convert escaped newlines to actual newlines
-                .replace(/\\"/g, '"')  // Convert escaped quotes to actual quotes
-                .replace(/\s+/g, ' ')  // Normalize whitespace
-                .trim();               // Remove leading/trailing whitespace
-
-              console.log("Processed industryOverview field");
-            } catch (overviewError) {
-              console.warn("Error processing industryOverview field:", overviewError.message);
-              // If processing fails, provide a fallback
-              data.industryOverview = "Industry overview information not available due to formatting issues.";
-            }
-          } else {
-            console.warn("No industryOverview field found in response");
-            data.industryOverview = "Industry overview information not available.";
+        // Handle industryOverview field - ensure it's properly formatted
+        if (data.industryOverview) {
+          // If it's not a string, convert it to a string
+          if (typeof data.industryOverview !== 'string') {
+            console.warn("industryOverview is not a string, converting to string");
+            data.industryOverview = String(data.industryOverview);
           }
 
-          return data;
-        };
+          try {
+            // Clean up any special characters or formatting issues
+            data.industryOverview = data.industryOverview
+              .replace(/\\n/g, '\n') // Convert escaped newlines to actual newlines
+              .replace(/\\"/g, '"')  // Convert escaped quotes to actual quotes
+              .replace(/\s+/g, ' ')  // Normalize whitespace
+              .trim();               // Remove leading/trailing whitespace
 
-        // Apply post-processing
-        data = postProcessData(data);
-
-        // Handle marketDemand array
-        if (data.marketDemand) {
-          if (Array.isArray(data.marketDemand)) {
-            // Check if the array is valid (no truncated objects)
-            const validDemand = data.marketDemand.filter(item =>
-              item && typeof item === 'object' && item.skill && typeof item.demandScore === 'number'
-            );
-
-            if (validDemand.length !== data.marketDemand.length) {
-              console.warn("Some marketDemand items were invalid or truncated, filtering them out");
-              data.marketDemand = validDemand;
-            }
-          } else {
-            console.warn("marketDemand is not an array, setting to empty array");
-            data.marketDemand = [];
+            console.log("Processed industryOverview field");
+          } catch (overviewError) {
+            console.warn("Error processing industryOverview field:", overviewError.message);
+            // If processing fails, provide a fallback
+            data.industryOverview = "Industry overview information not available due to formatting issues.";
           }
         } else {
-          data.marketDemand = [];
+          console.warn("No industryOverview field found in response");
+          data.industryOverview = "Industry overview information not available.";
         }
 
-        // Handle quickInsights if it's a string or truncated
-        if (data.quickInsights) {
-          console.log("Raw quickInsights data:", JSON.stringify(data.quickInsights));
+        // Ensure all required arrays exist and are valid
+        const arrayFields = [
+          'marketDemand', 'quickInsights', 'topSkills', 'citySalaryData',
+          'skillBasedBoosts', 'topCompanies', 'recommendedCourses',
+          'careerPathInsights', 'emergingTrends', 'nextActions'
+        ];
 
-          if (typeof data.quickInsights === 'string') {
-            try {
-              // Try to parse the string as JSON
-              data.quickInsights = JSON.parse(data.quickInsights.replace(/'/g, '"'));
-            } catch (error) {
-              console.warn("Could not parse quickInsights string, setting to empty array", error);
-              data.quickInsights = [];
-            }
-          } else if (Array.isArray(data.quickInsights)) {
-            try {
-              // Check if the array is truncated (last item is incomplete)
-              const lastItem = data.quickInsights[data.quickInsights.length - 1];
-              if (lastItem && typeof lastItem === 'object' &&
-                  (!lastItem.title && !lastItem.name || !lastItem.type && !lastItem.category)) {
-                console.warn("Last quickInsights item appears to be truncated, removing it");
-                // Remove the last item if it appears to be truncated
-                data.quickInsights.pop();
-              }
-
-              // First, convert the entire array to a string and back to handle any nested issues
-              const quickInsightsStr = JSON.stringify(data.quickInsights);
-              // Fix any potential issues with trailing commas or malformed JSON
-              const fixedStr = quickInsightsStr
-                .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
-                .replace(/,\s*}/g, '}'); // Remove trailing commas in objects
-
-              // Try to parse it back
-              const parsedInsights = JSON.parse(fixedStr);
-
-              // Now filter out invalid items
-              const validInsights = parsedInsights.filter(item =>
-                item && typeof item === 'object' &&
-                (item.title || item.name) && // Accept either title or name
-                (item.type || item.category) // Accept either type or category
-              );
-
-              if (validInsights.length !== data.quickInsights.length) {
-                console.warn(`Some quickInsights items were invalid or truncated, filtering them out. Original: ${data.quickInsights.length}, Valid: ${validInsights.length}`);
-              }
-
-              data.quickInsights = validInsights;
-            } catch (error) {
-              console.warn("Error processing quickInsights array, setting to empty array", error);
-              data.quickInsights = [];
-            }
+        // Process each array field to ensure it's a valid array
+        arrayFields.forEach(field => {
+          // If field doesn't exist or isn't an array, set to empty array
+          if (!data[field] || !Array.isArray(data[field])) {
+            console.warn(`${field} is not a valid array, setting to empty array`);
+            data[field] = [];
           } else {
-            console.warn("quickInsights is not an array or string, setting to empty array");
-            data.quickInsights = [];
-          }
-        } else {
-          console.warn("quickInsights is missing, setting to empty array");
-          data.quickInsights = [];
-        }
+            // For fields that have specific validation requirements
+            switch (field) {
+              case 'quickInsights':
+                // Filter valid quickInsights items
+                data[field] = data[field].filter(item =>
+                  item && typeof item === 'object' &&
+                  (item.title || item.name) && // Accept either title or name
+                  (item.type || item.category)  // Accept either type or category
+                );
+                break;
 
-        // Ensure quickInsights is always a valid array
-        if (!Array.isArray(data.quickInsights)) {
-          data.quickInsights = [];
-        }
+              case 'marketDemand':
+                // Filter valid marketDemand items
+                data[field] = data[field].filter(item =>
+                  item && typeof item === 'object' &&
+                  item.skill &&
+                  (typeof item.demandScore === 'number' || typeof item.demandScore === 'string')
+                );
+                break;
 
-        // Ensure nextActions is an array
-        if (!data.nextActions || !Array.isArray(data.nextActions)) {
-          console.warn("nextActions is not an array, setting to empty array");
-          data.nextActions = [];
-        }
+              case 'topCompanies':
+                // Process and validate topCompanies
+                data[field] = data[field].filter(item => item && typeof item === 'object' && item.name)
+                  .map(company => {
+                    // Ensure roles is an array of strings
+                    if (!company.roles || !Array.isArray(company.roles)) {
+                      company.roles = [];
+                    } else {
+                      // Ensure each role is a string
+                      company.roles = company.roles.map(role => {
+                        if (typeof role === 'string') {
+                          return role;
+                        } else if (role && typeof role === 'object') {
+                          // If it's an object, try to extract a string representation
+                          return String(role.name || role.title || role.role || JSON.stringify(role));
+                        } else {
+                          // Convert to string
+                          return String(role);
+                        }
+                      });
+                    }
+                    return company;
+                  });
+                break;
 
-        // Ensure citySalaryData is properly structured
-        if (data.citySalaryData) {
-          console.log("Raw citySalaryData:", JSON.stringify(data.citySalaryData));
+              case 'citySalaryData':
+                // Process and validate citySalaryData
+                data[field] = data[field].filter(item =>
+                  item && typeof item === 'object' && item.city &&
+                  (typeof item.avgSalary === 'number' || typeof item.avgSalary === 'string')
+                ).map(city => {
+                  // Ensure rolesSalaries is a valid array
+                  if (!city.rolesSalaries || !Array.isArray(city.rolesSalaries)) {
+                    city.rolesSalaries = [];
+                  } else {
+                    // Filter valid role salary entries
+                    city.rolesSalaries = city.rolesSalaries.filter(role =>
+                      role && typeof role === 'object' && role.role &&
+                      (typeof role.minSalary === 'number' || typeof role.minSalary === 'string') &&
+                      (typeof role.medianSalary === 'number' || typeof role.medianSalary === 'string') &&
+                      (typeof role.maxSalary === 'number' || typeof role.maxSalary === 'string')
+                    );
+                  }
+                  return city;
+                });
+                break;
 
-          // Ensure it's an array
-          if (!Array.isArray(data.citySalaryData)) {
-            console.warn("citySalaryData is not an array, converting to empty array");
-            data.citySalaryData = [];
-          } else {
-            // Ensure each city has the required properties
-            data.citySalaryData = data.citySalaryData.map(city => {
-              if (!city || typeof city !== 'object') {
-                return null; // Will be filtered out
-              }
+              case 'careerPathInsights':
+                // Filter valid careerPathInsights items
+                data[field] = data[field].filter(item =>
+                  item && typeof item === 'object' && item.title && item.description
+                );
+                break;
 
-              // Ensure rolesSalaries is an array
-              if (!city.rolesSalaries || !Array.isArray(city.rolesSalaries)) {
-                console.warn(`City ${city.city} has no rolesSalaries array, adding empty array`);
-                city.rolesSalaries = [];
-              }
+              case 'emergingTrends':
+                // Filter valid emergingTrends items
+                data[field] = data[field].filter(item =>
+                  item && typeof item === 'object' && item.name && item.description
+                );
+                break;
 
-              return city;
-            }).filter(city => city !== null);
-          }
-        } else {
-          console.warn("No citySalaryData in response, adding empty array");
-          data.citySalaryData = [];
-        }
+              case 'recommendedCourses':
+                // Filter valid recommendedCourses items
+                data[field] = data[field].filter(item =>
+                  item && typeof item === 'object' && item.name && item.platform
+                );
+                break;
 
-        // Ensure other required arrays exist
-        if (!data.marketDemand || !Array.isArray(data.marketDemand)) {
-          data.marketDemand = [];
-        }
-
-        if (!data.skillBasedBoosts || !Array.isArray(data.skillBasedBoosts)) {
-          data.skillBasedBoosts = [];
-        }
-
-        if (!data.topCompanies || !Array.isArray(data.topCompanies)) {
-          data.topCompanies = [];
-        } else {
-          // Ensure each company has properly formatted roles array
-          data.topCompanies = data.topCompanies.map(company => {
-            if (!company || typeof company !== 'object') {
-              return null; // Will be filtered out
+              case 'skillBasedBoosts':
+                // Filter valid skillBasedBoosts items
+                data[field] = data[field].filter(item =>
+                  item && typeof item === 'object' && item.skill &&
+                  (typeof item.salaryIncrease === 'number' || typeof item.salaryIncrease === 'string')
+                );
+                break;
             }
-
-            // Ensure roles is an array of strings
-            if (!company.roles || !Array.isArray(company.roles)) {
-              console.warn(`Company ${company.name} has no roles array, adding empty array`);
-              company.roles = [];
-            } else {
-              // Ensure each role is a string
-              company.roles = company.roles.map(role => {
-                if (typeof role === 'string') {
-                  return role;
-                } else if (role && typeof role === 'object') {
-                  // If it's an object, try to extract a string representation
-                  return String(role.name || role.title || role.role || JSON.stringify(role));
-                } else {
-                  // Convert to string
-                  return String(role);
-                }
-              });
-            }
-
-            return company;
-          }).filter(company => company !== null);
-        }
-
-        // Handle recommendedCourses array
-        if (data.recommendedCourses) {
-          if (Array.isArray(data.recommendedCourses)) {
-            // Check if the array is valid (no truncated objects)
-            const validCourses = data.recommendedCourses.filter(item =>
-              item && typeof item === 'object' && item.name && item.platform
-            );
-
-            if (validCourses.length !== data.recommendedCourses.length) {
-              console.warn("Some recommendedCourses items were invalid or truncated, filtering them out");
-              data.recommendedCourses = validCourses;
-            }
-          } else {
-            console.warn("recommendedCourses is not an array, setting to empty array");
-            data.recommendedCourses = [];
           }
-        } else {
-          data.recommendedCourses = [];
-        }
+        });
 
-        // Handle skillBasedBoosts array
-        if (data.skillBasedBoosts) {
-          if (Array.isArray(data.skillBasedBoosts)) {
-            // Check if the array is valid (no truncated objects)
-            const validBoosts = data.skillBasedBoosts.filter(item =>
-              item && typeof item === 'object' && item.skill &&
-              (typeof item.salaryIncrease === 'number' || typeof item.salaryIncrease === 'string')
-            );
-
-            if (validBoosts.length !== data.skillBasedBoosts.length) {
-              console.warn("Some skillBasedBoosts items were invalid or truncated, filtering them out");
-              data.skillBasedBoosts = validBoosts;
-            }
-          } else {
-            console.warn("skillBasedBoosts is not an array, setting to empty array");
-            data.skillBasedBoosts = [];
-          }
-        } else {
-          data.skillBasedBoosts = [];
-        }
-
-        // Handle topCompanies array
-        if (data.topCompanies) {
-          if (Array.isArray(data.topCompanies)) {
-            // Check if the array is valid (no truncated objects)
-            const validCompanies = data.topCompanies.filter(item =>
-              item && typeof item === 'object' && item.name
-            );
-
-            if (validCompanies.length !== data.topCompanies.length) {
-              console.warn("Some topCompanies items were invalid or truncated, filtering them out");
-              data.topCompanies = validCompanies;
-            }
-          } else {
-            console.warn("topCompanies is not an array, setting to empty array");
-            data.topCompanies = [];
-          }
-        } else {
-          data.topCompanies = [];
-        }
-
-        // Handle careerPathInsights
-        if (data.careerPathInsights) {
-          if (Array.isArray(data.careerPathInsights)) {
-            // Check if the array is valid (no truncated objects)
-            const validInsights = data.careerPathInsights.filter(item =>
-              item && typeof item === 'object' && item.title && item.description
-            );
-
-            if (validInsights.length !== data.careerPathInsights.length) {
-              console.warn("Some careerPathInsights items were invalid or truncated, filtering them out");
-              data.careerPathInsights = validInsights;
-            }
-          } else {
-            console.warn("careerPathInsights is not an array, setting to empty array");
-            data.careerPathInsights = [];
-          }
-        } else {
-          data.careerPathInsights = [];
-        }
-
-        // Handle emergingTrends
-        if (data.emergingTrends) {
-          if (Array.isArray(data.emergingTrends)) {
-            // Check if the array is valid (no truncated objects)
-            const validTrends = data.emergingTrends.filter(item =>
-              item && typeof item === 'object' && item.name && item.description
-            );
-
-            if (validTrends.length !== data.emergingTrends.length) {
-              console.warn("Some emergingTrends items were invalid or truncated, filtering them out");
-              data.emergingTrends = validTrends;
-            }
-          } else {
-            console.warn("emergingTrends is not an array, setting to empty array");
-            data.emergingTrends = [];
-          }
-        } else {
-          data.emergingTrends = [];
-        }
-
-        // Handle citySalaryData array
-        if (data.citySalaryData) {
-          if (Array.isArray(data.citySalaryData)) {
-            // Check if the array is valid (no truncated objects)
-            const validCityData = data.citySalaryData.filter(item =>
-              item && typeof item === 'object' && item.city &&
-              (typeof item.avgSalary === 'number' || typeof item.avgSalary === 'string')
-            );
-
-            if (validCityData.length !== data.citySalaryData.length) {
-              console.warn("Some citySalaryData items were invalid or truncated, filtering them out");
-              data.citySalaryData = validCityData;
-            }
-
-            // Ensure each city has a valid rolesSalaries array
-            data.citySalaryData = data.citySalaryData.map(city => {
-              if (!city.rolesSalaries || !Array.isArray(city.rolesSalaries)) {
-                console.warn(`City ${city.city} has no rolesSalaries array, adding empty array`);
-                return {
-                  ...city,
-                  rolesSalaries: []
-                };
-              }
-
-              // Filter out invalid role salary entries
-              const validRoles = city.rolesSalaries.filter(role =>
-                role && typeof role === 'object' && role.role &&
-                (typeof role.minSalary === 'number' || typeof role.minSalary === 'string') &&
-                (typeof role.medianSalary === 'number' || typeof role.medianSalary === 'string') &&
-                (typeof role.maxSalary === 'number' || typeof role.maxSalary === 'string')
-              );
-
-              if (validRoles.length !== city.rolesSalaries.length) {
-                console.warn(`Some rolesSalaries items for city ${city.city} were invalid, filtering them out`);
-                return {
-                  ...city,
-                  rolesSalaries: validRoles
-                };
-              }
-
-              return city;
-            });
-          } else {
-            console.warn("citySalaryData is not an array, setting to empty array");
-            data.citySalaryData = [];
-          }
-        } else {
-          data.citySalaryData = [];
-        }
-
-        // Ensure expectedSalaryRange exists
+        // Ensure expectedSalaryRange exists and is valid
         if (!data.expectedSalaryRange || typeof data.expectedSalaryRange !== 'object') {
           data.expectedSalaryRange = { min: 80000, max: 120000, currency: "USD" };
         }

@@ -12,8 +12,10 @@ import {
   FaBriefcase,
   FaGraduationCap,
   FaChartLine,
-  FaMapMarkerAlt
+  FaMapMarkerAlt,
+  FaExchangeAlt
 } from "react-icons/fa";
+import InfoTooltip from "../components/ui/InfoTooltip";
 import SkillsVsMarketChart from "../components/charts/skillVsmarket";
 import CitySalaryRanges from "../components/charts/CitySalaryRanges";
 import { useEffect, useState } from "react";
@@ -91,7 +93,6 @@ function IndustryInsightsPage() {
               skills: userRes.data.skills,
               country: userRes.data.country,
               salaryExpectation: userRes.data.salaryExpectation,
-              preferredRoles: userRes.data.preferredRoles,
               isIndianData: userRes.data.country.toLowerCase().includes('india'),
               forceRefresh: true
             }, {
@@ -304,6 +305,13 @@ function IndustryInsightsPage() {
                 <FaUser className="mr-2" />
                 Edit Profile
               </button>
+              <button
+                onClick={() => navigate('/comparison')}
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white py-2 px-6 rounded-lg flex items-center transition-all shadow-md self-start md:self-auto"
+              >
+                <FaExchangeAlt className="mr-2" />
+                Compare Countries & Roles
+              </button>
             </div>
           </div>
 
@@ -332,7 +340,7 @@ function IndustryInsightsPage() {
             <FaRocket className="mr-3 text-cyan-400" />
             Quick Actions
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <ActionCard
               icon={<FaUser className="text-cyan-400" />}
               title="Update Your Skills"
@@ -350,7 +358,15 @@ function IndustryInsightsPage() {
               className="hover:translate-y-px transition-all h-full"
             />
             <ActionCard
-              icon={<FaCalendar className="text-purple-400" />}
+              icon={<FaExchangeAlt className="text-purple-400" />}
+              title="Compare Countries & Roles"
+              description="Compare salary and skills between countries and roles"
+              actionText="Compare Now"
+              onClick={() => navigate('/comparison')}
+              className="hover:translate-y-px transition-all h-full"
+            />
+            <ActionCard
+              icon={<FaCalendar className="text-blue-400" />}
               title="Career Planning"
               description="Get personalized career path recommendations"
               actionText="View Paths"
@@ -390,7 +406,22 @@ function IndustryInsightsPage() {
             <div id="skills-section" className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
               <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
                 <FaChartBar className="mr-3 text-cyan-400" />
-                Skills vs Market Demand
+                <span className="mr-3">Skills vs Market Demand</span>
+                <InfoTooltip
+                  title="Skills vs Market Demand"
+                  content={
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                      <p className="text-xs">• Shows skills demand percentage</p>
+                      <p className="text-xs">• Green bars = skills you have</p>
+                      <p className="text-xs">• Blue bars = skills to acquire</p>
+                      <p className="text-xs">• Higher % = greater demand</p>
+                    </div>
+                  }
+                  position="right"
+                  iconClass="text-cyan-400 hover:text-cyan-300"
+                  iconSize="lg"
+                  delay={400}
+                />
               </h3>
               <div className="h-80 p-2">
                 <SkillsVsMarketChart marketDemand={marketDemand} userSkills={userData?.skills || []} />
@@ -402,7 +433,24 @@ function IndustryInsightsPage() {
           <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
             <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
               <FaChartLine className="mr-3 text-cyan-400" />
-              City Salary Information
+              <span className="mr-3">City Salary Information</span>
+              <InfoTooltip
+                title="City Salary Information"
+                content={
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                    <p className="text-xs">• Shows city salary ranges</p>
+                    <p className="text-xs">• White marker = median salary</p>
+                    <p className="text-xs">• Yellow marker = your expectation</p>
+                    <p className="text-xs">• Trend indicators show direction</p>
+                    <p className="text-xs">• Compare cities for best pay</p>
+                    <p className="text-xs">• Based on current market data</p>
+                  </div>
+                }
+                position="right"
+                iconClass="text-cyan-400 hover:text-cyan-300"
+                iconSize="lg"
+                delay={400}
+              />
             </h3>
 
             {expectedSalaryRange && (
@@ -449,7 +497,22 @@ function IndustryInsightsPage() {
             <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
               <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
                 <FaChartLine className="mr-3 text-cyan-400" />
-                Skill-Based Salary Boosts
+                <span className="mr-3">Skill-Based Salary Boosts</span>
+                <InfoTooltip
+                  title="Skill-Based Salary Boosts"
+                  content={
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                      <p className="text-xs">• Shows how skills increase salary</p>
+                      <p className="text-xs">• Each skill has estimated boost</p>
+                      <p className="text-xs">• Acquire skills for higher pay</p>
+                      <p className="text-xs">• Based on current market data</p>
+                    </div>
+                  }
+                  position="right"
+                  iconClass="text-cyan-400 hover:text-cyan-300"
+                  iconSize="lg"
+                  delay={400}
+                />
               </h3>
               <div className="grid grid-cols-1 gap-2">
                 {skillBasedBoosts.map((boost, index) => (
@@ -463,7 +526,7 @@ function IndustryInsightsPage() {
                         style: 'currency',
                         currency: 'USD',
                         maximumFractionDigits: 0
-                      }).format(boost.salaryIncrease)}
+                      }).format(boost.salaryIncrease < 30 ? boost.salaryIncrease * 30 : boost.salaryIncrease)}
                     </span>
                   </div>
                 ))}
@@ -484,18 +547,6 @@ function IndustryInsightsPage() {
             </div>
           )}
 
-          {/* Recommended Courses */}
-          {hasRecommendedCourses && (
-            <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-lg">
-              <h3 className="text-xl font-semibold text-cyan-50 mb-4 flex items-center">
-                <FaGraduationCap className="mr-3 text-cyan-400" />
-                Recommended Courses
-              </h3>
-              <div className="overflow-hidden rounded-lg border border-zinc-700">
-                <RecommendedCoursesTable courses={recommendedCourses} />
-              </div>
-            </div>
-          )}
 
           {/* Career Path Insights */}
           {hasCareerPathInsights && (

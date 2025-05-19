@@ -22,7 +22,6 @@ const ProfileEdit = () => {
     experience: '',
     skills: [],
     country: '',
-    preferredRoles: [],
     salaryExpectation: '',
     competencyScore: 0
   });
@@ -110,13 +109,7 @@ const ProfileEdit = () => {
     }));
   };
 
-  const handlePreferredRolesChange = (e) => {
-    const preferredRoles = e.target.value.split(',').map(role => role.trim());
-    setFormData(prev => ({
-      ...prev,
-      preferredRoles
-    }));
-  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -151,7 +144,6 @@ const ProfileEdit = () => {
         skills: formData.skills,
         country: formData.country,
         salaryExpectation: formData.salaryExpectation,
-        preferredRoles: formData.preferredRoles,
         isIndianData: formData.country.toLowerCase().includes('india'),
         forceRefresh: true  // Add a flag for the backend to force refresh
       }, {
@@ -382,20 +374,7 @@ const ProfileEdit = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-cyan-100 mb-2 flex items-center">
-              <Briefcase className="mr-2 h-5 w-5" />
-              Preferred Roles (comma separated)
-            </label>
-            <input
-              type="text"
-              name="preferredRoles"
-              value={Array.isArray(formData.preferredRoles) ? formData.preferredRoles.join(', ') : formData.preferredRoles}
-              onChange={handlePreferredRolesChange}
-              className="w-full bg-zinc-700 border border-zinc-600 rounded-lg p-3 text-white"
-              placeholder="e.g. Software Engineer, Full Stack Developer"
-            />
-          </div>
+
 
           <div className="flex justify-end space-x-4">
             <button
