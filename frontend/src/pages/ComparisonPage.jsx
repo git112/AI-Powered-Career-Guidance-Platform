@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaExchangeAlt, FaGlobe, FaBriefcase, FaMoneyBillWave, FaTrash } from 'react-icons/fa';
+import { FaArrowLeft, FaExchangeAlt, FaGlobe, FaBriefcase, FaMoneyBillWave } from 'react-icons/fa';
 import api from '../lib/axios';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import CountrySalaryChart from '../components/charts/CountrySalaryChart';
+import CountrySalaryTable from '../components/charts/CountrySalaryTable';
 import RoleSkillsComparisonChart from '../components/charts/RoleSkillsComparisonChart';
 
 // Helper function to get color class based on percentile
@@ -373,8 +373,8 @@ const ComparisonPage = () => {
                         <FaGlobe className="mr-3 text-cyan-400" />
                         Salary Comparison: {comparisonData.countrySalaryComparison.currentCountry.name || userData?.country} vs {comparisonData.countrySalaryComparison.targetCountry.name || targetCountry}
                       </h3>
-                      <div className="h-96 p-2">
-                        <CountrySalaryChart
+                      <div className="h-[600px] p-2">
+                        <CountrySalaryTable
                           data={comparisonData.countrySalaryComparison}
                           userSalaryExpectation={userData?.salaryExpectation}
                         />
