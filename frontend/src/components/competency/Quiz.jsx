@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams, useLocation } from "react-router-dom"
 import { ArrowRight, Clock, CheckCircle, AlertCircle, Loader } from "lucide-react"
-import { fetchQuiz, submitQuiz } from "../../../../backend/controllers/quizC"
+
+// STEP 1: The incorrect import from the backend has been removed.
 
 const CompetencyQuiz = () => {
   const navigate = useNavigate()
@@ -19,6 +20,30 @@ const CompetencyQuiz = () => {
 
   const { subIndustry, category } = location.state || {};
 
+  // STEP 2: Add the new functions for making API calls.
+  const apiFetchQuiz = async (categoryId, subIndustry) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/competency-quiz/${categoryId}?subIndustry=${subIndustry}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch quiz');
+    }
+    return response.json();
+  };
+
+  const apiSubmitQuiz = async (submissionData) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/competency-quiz/submit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submissionData),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to submit quiz');
+    }
+    return response.json();
+  };
+
+
   useEffect(() => {
     const getQuiz = async () => {
       if (!categoryId || !subIndustry) {
@@ -28,7 +53,8 @@ const CompetencyQuiz = () => {
 
       try {
         setLoading(true)
-        const data = await fetchQuiz(categoryId, subIndustry)
+        // STEP 3: Use the new apiFetchQuiz function.
+        const data = await apiFetchQuiz(categoryId, subIndustry)
 
         const formattedQuestions = data.map((q, index) => ({
           id: `q${index + 1}`,
@@ -136,7 +162,8 @@ const CompetencyQuiz = () => {
   
       console.log('Quiz Submission Data:', JSON.stringify(quizSubmissionData, null, 2));
   
-      const result = await submitQuiz(quizSubmissionData);
+      // STEP 3: Use the new apiSubmitQuiz function.
+      const result = await apiSubmitQuiz(quizSubmissionData);
   
       navigate("/competency-test/results", {
         state: {
@@ -146,7 +173,7 @@ const CompetencyQuiz = () => {
             subIndustry,
             questions: questionsWithResults,
             improvementTip: result.improvementTip || "No specific improvement tips available",
-            recommendations: result.recommendations // Add this line to pass recommendations
+            recommendations: result.recommendations
           },
         },
       })
