@@ -4,6 +4,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+
+# ADD THIS LINE to increase the memory limit for the build process
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 RUN npm run build
 
 # Stage 2: Serve the application using Nginx
