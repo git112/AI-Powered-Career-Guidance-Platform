@@ -5,8 +5,22 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+    # UPDATED: This section now uses variables
     environment:
-      - MONGO_URI=mongodb://db:27017/jobnest
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      
+      - PORT=8000
     depends_on:
       - db
 
