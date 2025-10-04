@@ -20,7 +20,7 @@ const Hero = () => {
             <br/>AI-Powered Assistance!
           </h1>
           <p className="mx-auto max-w-[800px] text-muted-foreground md:text-2xl text-cyan-50">
-          Get AI-powered job matches, personalized skill-building, and real-time career insights.
+          Get AI-powered personalized skill-building, and real-time career insights.
           </p>
         </div>
         <div className="flex justify-center space-x-4">
